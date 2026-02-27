@@ -97,7 +97,7 @@ export function Dashboard() {
               </p>
             </div>
             <button
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex-shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex-shrink-0 cursor-pointer"
               style={{ fontSize: "12px", fontWeight: 500 }}
               onClick={() => navigate("/projects")}
             >
@@ -118,7 +118,7 @@ export function Dashboard() {
                 Active Projects
               </h2>
               <button
-                className="flex items-center gap-1 text-indigo-600 hover:text-indigo-700 transition-colors"
+                className="flex items-center gap-1 text-indigo-600 hover:text-indigo-700 transition-colors cursor-pointer"
                 style={{ fontSize: "12.5px", fontWeight: 500 }}
                 onClick={() => navigate("/projects")}
               >
@@ -140,7 +140,7 @@ export function Dashboard() {
           {/* Right Column */}
           <div className="space-y-4">
             {/* Upcoming Milestones */}
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 cursor-pointer">
               <div className="flex items-center justify-between mb-4">
                 <h2
                   className="text-gray-900"
@@ -149,7 +149,7 @@ export function Dashboard() {
                   Upcoming Milestones
                 </h2>
                 <button
-                  className="text-indigo-600 hover:text-indigo-700 transition-colors"
+                  className="text-indigo-600 hover:text-indigo-700 transition-colors cursor-pointer"
                   style={{ fontSize: "12px", fontWeight: 500 }}
                   onClick={() => navigate("/timeline")}
                 >
@@ -194,7 +194,7 @@ export function Dashboard() {
                 ))}
               </div>
               <button
-                className="w-full mt-3 py-2 rounded-lg border border-dashed border-gray-200 text-gray-400 hover:border-indigo-300 hover:text-indigo-500 transition-colors"
+                className="w-full mt-3 py-2 rounded-lg border border-dashed border-gray-200 text-gray-400 hover:border-indigo-300 hover:text-indigo-500 transition-colors cursor-pointer"
                 style={{ fontSize: "12px", fontWeight: 500 }}
                 onClick={() => navigate("/timeline")}
               >
@@ -203,7 +203,7 @@ export function Dashboard() {
             </div>
 
             {/* Project Overview */}
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 cursor-pointer">
               <h2
                 className="text-gray-900 mb-4"
                 style={{ fontSize: "14px", fontWeight: 600 }}
@@ -244,8 +244,7 @@ export function Dashboard() {
         {/* Bottom Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recent Activity */}
-          {/* Recent Activity - full width on mobile, 2 cols on desktop */}
-          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 cursor-pointer shadow-sm p-5">
             <div className="flex items-center justify-between mb-2">
               <h2
                 className="text-gray-900"
@@ -265,14 +264,14 @@ export function Dashboard() {
 
           {/* Quick Actions / Loading Demo */}
           <div className="space-y-4">
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 cursor-pointer">
               <h2
                 className="text-gray-900 mb-4"
                 style={{ fontSize: "14px", fontWeight: 600 }}
               >
                 Quick Actions
               </h2>
-              <div className="space-y-2">
+              <div className="space-y-2 ">
                 {[
                   {
                     label: "Create New Project",
@@ -297,7 +296,7 @@ export function Dashboard() {
                 ].map((action) => (
                   <button
                     key={action.label}
-                    className={`w-full px-4 py-2.5 rounded-lg transition-all duration-150 text-left ${action.color}`}
+                    className={`w-full px-4 py-2.5 rounded-lg transition-all duration-150 text-left cursor-pointer ${action.color}`}
                     style={{ fontSize: "13px", fontWeight: 500 }}
                     onClick={handleDemoLoading}
                   >
@@ -308,7 +307,7 @@ export function Dashboard() {
             </div>
 
             {/* Loading State Demo */}
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 cursor-pointer">
               <div className="flex items-center justify-between mb-3">
                 <h2
                   className="text-gray-900"

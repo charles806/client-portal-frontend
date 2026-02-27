@@ -54,14 +54,14 @@ export function Sidebar() {
             className="text-gray-900 tracking-tight"
             style={{ fontWeight: 700, fontSize: "15px" }}
           >
-            ClientPortal
+            PortalWave
           </span>
         </div>
 
         {/* Client Selector */}
         <div className="px-3 pt-4 pb-2">
-          <button className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors group">
-            <div className="w-6 h-6 rounded bg-indigo-600 flex items-center justify-center flex-shrink-0">
+          <button className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors group cursor-pointer">
+            <div className="w-6 h-6 rounded bg-indigo-600 flex items-center justify-center flex-shrink-0 ">
               <span
                 className="text-white"
                 style={{ fontSize: "10px", fontWeight: 600 }}
@@ -132,7 +132,7 @@ export function Sidebar() {
         </nav>
 
         {/* Upgrade Banner */}
-        <div className="px-3 py-3 border-t border-gray-100">
+        <div className="px-3 py-3 border-t border-gray-100 cursor-pointer">
           <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg p-4 text-white">
             <p className="font-semibold text-sm mb-1">Upgrade to Pro</p>
             <p className="text-xs opacity-90 mb-3">Get unlimited projects</p>
@@ -143,7 +143,7 @@ export function Sidebar() {
         </div>
 
         {/* Recent Clients */}
-        <div className="px-3 py-3 border-t border-gray-100">
+        <div className="px-3 py-3 border-t border-gray-100 cursor-pointer">
           <p
             className="px-3 pb-2 text-gray-400 uppercase tracking-wider"
             style={{ fontSize: "11px", fontWeight: 600 }}
@@ -157,7 +157,7 @@ export function Sidebar() {
           ].map((client, i) => (
             <button
               key={client.name}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <div
                 className={`w-6 h-6 rounded flex items-center justify-center flex-shrink-0 ${avatarColors[i]}`}
@@ -188,15 +188,15 @@ export function Sidebar() {
         {/* Bottom Actions */}
         <div className="px-3 pb-4 pt-2 border-t border-gray-100">
           <div className="flex items-center gap-2 px-3 py-2">
-            <button className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600">
+            <button className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600 cursor-pointer">
               <Bell size={15} />
             </button>
-            <button className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600">
+            <button className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600 cursor-pointer">
               <HelpCircle size={15} />
             </button>
           </div>
           {/* User */}
-          <button className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+          <button className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
             <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
               <span
                 className="text-white"

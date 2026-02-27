@@ -21,7 +21,7 @@ export function MetricCard({
   description,
 }: MetricCardProps) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 hover:shadow-md hover:border-gray-200 transition-all duration-200">
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 hover:shadow-md hover:border-gray-200 transition-all duration-200 cursor-pointer">
       <div className="flex items-start justify-between mb-4">
         <div className={`w-9 h-9 rounded-lg ${iconBg} flex items-center justify-center`}>
           {icon}

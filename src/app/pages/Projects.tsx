@@ -1,33 +1,85 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Search, Grid3x3, List } from "lucide-react";
 import { Header } from "../components/layout/Header";
 import { ProjectCard } from "../components/ui/ProjectCard";
-import { useProjectStore } from "../../store/projectStore";
 import { AddProjectModal } from "../components/modals/AddProjectModal";
 import { EditProjectModal } from "../components/modals/EditProjectModal";
+import { useProjects } from "../hooks/useProjects";
 import type { Project } from "../data/mockData";
 
 export function Projects() {
-  const {
-    filteredProjects,
-    searchQuery,
-    setSearchQuery,
-    sortBy,
-    setSortBy,
-    filterStatus,
-    setFilterStatus,
-  } = useProjectStore();
+  const { data: projects = [], isLoading, error } = useProjects();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"name" | "progress" | "dueDate">("name");
+  const [filterStatus, setFilterStatus] = useState("all");
 
-  const projects = filteredProjects();
+  // Client-side filtering and sorting
+  const filteredProjects = useMemo(() => {
+    let filtered = projects;
+
+    // Filter by status
+    if (filterStatus !== "all") {
+      filtered = filtered.filter((p) => p.status === filterStatus);
+    }
+
+    // Search
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.client.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q),
+      );
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "name":
+          return a.name.localeCompare(b.name);
+        case "progress":
+          return b.progress - a.progress;
+        case "dueDate":
+          return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [projects, searchQuery, sortBy, filterStatus]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-gray-500 text-sm">Loading projects...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error loading projects</p>
+          <p className="text-gray-500 text-sm">{(error as Error).message}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header
         title="Projects"
-        subtitle={`${projects.length} project${projects.length !== 1 ? "s" : ""}`}
+        subtitle={`${filteredProjects.length} project${filteredProjects.length !== 1 ? "s" : ""}`}
         actions={
           <button
             onClick={() => setModalOpen(true)}
@@ -42,9 +94,8 @@ export function Projects() {
       />
 
       <div className="p-4 lg:p-6 space-y-4">
-        {/* Filters */}
+        {/* Filters - keep existing filter UI */}
         <div className="flex flex-col lg:flex-row gap-3">
-          {/* Search */}
           <div className="relative flex-1">
             <Search
               size={14}
@@ -59,7 +110,6 @@ export function Projects() {
             />
           </div>
 
-          {/* Status Filter */}
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -73,7 +123,6 @@ export function Projects() {
             <option value="planning">Planning</option>
           </select>
 
-          {/* Sort */}
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
@@ -84,7 +133,6 @@ export function Projects() {
             <option value="dueDate">Sort by Due Date</option>
           </select>
 
-          {/* View Toggle */}
           <div className="flex gap-1 bg-white border border-gray-200 rounded-lg p-1">
             <button
               onClick={() => setViewMode("grid")}
@@ -109,7 +157,7 @@ export function Projects() {
               : "space-y-3"
           }
         >
-          {projects.map((project) => (
+          {filteredProjects.map((project) => (
             <ProjectCard
               key={project.id}
               project={project}
@@ -119,7 +167,7 @@ export function Projects() {
         </div>
 
         {/* Empty State */}
-        {projects.length === 0 && (
+        {filteredProjects.length === 0 && (
           <div className="text-center py-16">
             <p className="text-gray-500">No projects found</p>
           </div>

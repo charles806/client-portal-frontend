@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
-import { useProjectStore } from "../../../store/projectStore";
+import { useCreateProject } from "../../hooks/useProjects";
 
 interface AddProjectModalProps {
   open: boolean;
@@ -8,32 +8,35 @@ interface AddProjectModalProps {
 }
 
 export function AddProjectModal({ open, onClose }: AddProjectModalProps) {
-  const addProject = useProjectStore((s) => s.addProject);
+  const createProject = useCreateProject();
   const [name, setName] = useState("");
   const [client, setClient] = useState("");
   const [description, setDescription] = useState("");
 
   if (!open) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    addProject({
-      id: `p${Date.now()}`,
-      name,
-      client,
-      description,
-      status: "planning",
-      progress: 0,
-      dueDate: "TBD",
-      team: [],
-      budget: "$0",
-      spent: "$0",
-      tags: [],
-    });
-    setName("");
-    setClient("");
-    setDescription("");
-    onClose();
+    try {
+      await createProject.mutateAsync({
+        name,
+        client,
+        description,
+        status: "planning",
+        progress: 0,
+        dueDate: "TBD",
+        team: [],
+        budget: "$0",
+        spent: "$0",
+        tags: [],
+      } as any);
+      setName("");
+      setClient("");
+      setDescription("");
+      onClose();
+    } catch (error) {
+      console.error("Failed to create project:", error);
+    }
   };
 
   return (
@@ -98,14 +101,16 @@ export function AddProjectModal({ open, onClose }: AddProjectModalProps) {
               type="button"
               onClick={onClose}
               className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
+              disabled={createProject.isPending}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 cursor-pointer"
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 cursor-pointer disabled:opacity-50"
+              disabled={createProject.isPending}
             >
-              Create Project
+              {createProject.isPending ? "Creating..." : "Create Project"}
             </button>
           </div>
         </form>

@@ -1,6 +1,8 @@
 export type ProjectStatus = "active" | "completed" | "at-risk" | "on-hold" | "planning";
 
 export interface Project {
+  tasksCompleted: ReactNode;
+  tasksTotal: ReactNode;
   id: string;
   name: string;
   client: string;

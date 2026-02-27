@@ -33,11 +33,10 @@ export function ProjectCard({ project, onEdit }: ProjectCardProps) {
 
   return (
     <div
-      className={`bg-white rounded-xl border transition-all duration-200 overflow-hidden cursor-pointer ${
-        hovered
-          ? "border-indigo-200 shadow-md shadow-indigo-50"
+      className={`bg-white rounded-xl border transition-all duration-200 overflow-hidden cursor-pointer ${hovered
+          ? " shadow-md shadow-indigo-50"
           : "border-gray-100 shadow-sm"
-      }`}
+        }`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={() => navigate(`/projects/${project.id}`)}
@@ -74,7 +73,7 @@ export function ProjectCard({ project, onEdit }: ProjectCardProps) {
 
         {/* Tags */}
         <div className="flex flex-wrap gap-1.5 mb-4">
-          {project.tags.map((tag) => (
+          {(project.tags || []).map((tag) => (
             <span
               key={tag}
               className={`px-2 py-0.5 rounded-md ${tagColors[tag] || "bg-gray-100 text-gray-500"}`}
@@ -99,7 +98,7 @@ export function ProjectCard({ project, onEdit }: ProjectCardProps) {
         <div className="flex items-center gap-3">
           {/* Team Avatars */}
           <div className="flex -space-x-1.5">
-            {project.team.slice(0, 3).map((member) => (
+            {(project.team || []).slice(0, 3).map((member) => (
               <div
                 key={member.name}
                 className="w-6 h-6 rounded-full bg-indigo-100 border-2 border-white flex items-center justify-center"
@@ -113,13 +112,13 @@ export function ProjectCard({ project, onEdit }: ProjectCardProps) {
                 </span>
               </div>
             ))}
-            {project.team.length > 3 && (
+            {(project.team?.length || 0) > 3 && (
               <div className="w-6 h-6 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center">
                 <span
                   className="text-gray-500"
                   style={{ fontSize: "9px", fontWeight: 600 }}
                 >
-                  +{project.team.length - 3}
+                  +{(project.team?.length || 0) - 3}
                 </span>
               </div>
             )}

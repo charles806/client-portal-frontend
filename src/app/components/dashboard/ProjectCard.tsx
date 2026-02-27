@@ -3,6 +3,7 @@ import { ArrowUpRight, CheckSquare, Calendar, DollarSign } from "lucide-react";
 import { Project } from "../../data/mockData";
 import { ProjectStatusBadge } from "./StatusBadge";
 import { useNavigate } from "react-router";
+import { cn } from "../ui/utils";
 
 interface ProjectCardProps {
   project: Project;
@@ -24,149 +25,113 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
 
   return (
     <div
-      className="bg-white rounded-xl border transition-all duration-200 overflow-hidden cursor-pointer w-full"
-      style={{
-        borderColor: hovered ? "#C7D2FE" : "#E5E7EB",
-        boxShadow: hovered
-          ? "0 4px 24px -4px rgba(79, 70, 229, 0.12), 0 1px 4px -2px rgba(0,0,0,0.06)"
-          : "0 1px 3px 0 rgba(0,0,0,0.04), 0 1px 2px -1px rgba(0,0,0,0.04)",
-        transform: hovered ? "translateY(-1px)" : "translateY(0)",
-      }}
+      className={cn(
+        "glass rounded-2xl overflow-hidden cursor-pointer w-full group transition-all duration-300",
+        hovered ? "shadow-lg -translate-y-1 border-white/40" : "shadow-sm"
+      )}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={() => navigate(`/projects/${project.id}`)}
     >
       {/* Card Header */}
-      <div className="px-5 pt-5 pb-4">
-        <div className="flex items-start justify-between gap-3 mb-3">
+      <div className="px-6 pt-6 pb-4">
+        <div className="flex items-start justify-between gap-3 mb-4">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-2">
               <ProjectStatusBadge status={project.status} />
             </div>
-            <h3
-              className="text-sm font-semibold leading-snug truncate"
-              style={{ color: "#111827", fontFamily: "Inter, sans-serif" }}
-            >
+            <h3 className="text-sm font-semibold leading-snug truncate text-foreground tracking-tight">
               {project.name}
             </h3>
-            <p
-              className="text-xs mt-0.5"
-              style={{ color: "#6B7280", fontFamily: "Inter, sans-serif" }}
-            >
+            <p className="text-xs mt-1 text-muted-foreground font-medium">
               {project.client}
             </p>
           </div>
           <div
-            className="w-7 h-7 flex items-center justify-center rounded-lg shrink-0 transition-colors"
-            style={{ backgroundColor: hovered ? "#EEF2FF" : "#F9FAFB" }}
+            className={cn(
+              "w-8 h-8 flex items-center justify-center rounded-xl shrink-0 transition-all duration-300",
+              hovered ? "bg-primary/20 scale-110" : "bg-foreground/5"
+            )}
           >
             <ArrowUpRight
-              size={14}
-              style={{ color: hovered ? "#4F46E5" : "#9CA3AF" }}
+              size={16}
+              className={cn(
+                "transition-colors duration-300",
+                hovered ? "text-primary" : "text-muted-foreground"
+              )}
             />
           </div>
         </div>
 
-        <p
-          className="text-xs leading-relaxed line-clamp-2"
-          style={{ color: "#6B7280", fontFamily: "Inter, sans-serif" }}
-        >
+        <p className="text-xs leading-relaxed line-clamp-2 text-muted-foreground/90">
           {project.description}
         </p>
       </div>
 
       {/* Progress Section */}
-      <div className="px-5 pb-4">
-        <div className="flex items-center justify-between mb-2">
-          <span
-            className="text-xs font-medium"
-            style={{ color: "#374151", fontFamily: "Inter, sans-serif" }}
-          >
+      <div className="px-6 pb-5">
+        <div className="flex items-center justify-between mb-2.5">
+          <span className="text-xs font-semibold text-foreground/80 uppercase tracking-wider">
             Progress
           </span>
           <span
-            className="text-xs font-semibold"
-            style={{
-              color:
-                project.progress === 100
-                  ? "#059669"
-                  : project.status === "at_risk"
-                    ? "#D97706"
-                    : "#4F46E5",
-              fontFamily: "Inter, sans-serif",
-            }}
+            className={cn(
+              "text-xs font-bold",
+              project.progress === 100
+                ? "text-emerald-500"
+                : project.status === "at-risk"
+                  ? "text-amber-500"
+                  : "text-primary"
+            )}
           >
             {project.progress}%
           </span>
         </div>
-        <div
-          className="w-full h-1.5 rounded-full overflow-hidden"
-          style={{ backgroundColor: "#F3F4F6" }}
-        >
+        <div className="w-full h-2 rounded-full overflow-hidden bg-foreground/5 p-[1px]">
           <div
-            className="h-full rounded-full transition-all duration-700"
-            style={{
-              width: `${project.progress}%`,
-              backgroundColor:
-                project.progress === 100
-                  ? "#10B981"
-                  : project.status === "at_risk"
-                    ? "#F59E0B"
-                    : project.status === "paused"
-                      ? "#9CA3AF"
-                      : "#4F46E5",
-            }}
+            className={cn(
+              "h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(88,80,236,0.3)]",
+              project.progress === 100
+                ? "bg-emerald-500 shadow-emerald-500/20"
+                : project.status === "at-risk"
+                  ? "bg-amber-500 shadow-amber-500/20"
+                  : project.status === "on-hold"
+                    ? "bg-slate-400"
+                    : "bg-primary"
+            )}
+            style={{ width: `${project.progress}%` }}
           />
         </div>
       </div>
 
       {/* Stats Row */}
-      <div
-        className="px-5 py-3 border-t flex items-center gap-4"
-        style={{ borderColor: "#F3F4F6" }}
-      >
-        <div className="flex items-center gap-1.5">
-          <CheckSquare size={12} style={{ color: "#9CA3AF" }} />
-          <span
-            className="text-xs"
-            style={{ color: "#6B7280", fontFamily: "Inter, sans-serif" }}
-          >
-            {project.tasksCompleted}/{project.tasksTotal}
-          </span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Calendar size={12} style={{ color: "#9CA3AF" }} />
-          <span
-            className="text-xs"
-            style={{ color: "#6B7280", fontFamily: "Inter, sans-serif" }}
-          >
-            {project.dueDate}
-          </span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <DollarSign size={12} style={{ color: "#9CA3AF" }} />
-          <span
-            className="text-xs"
-            style={{ color: "#6B7280", fontFamily: "Inter, sans-serif" }}
-          >
+      <div className="px-6 py-4 border-t border-foreground/5 flex items-center gap-5 bg-foreground/[0.02]">
+        <div className="flex items-center gap-1.5 group/stat">
+          <DollarSign size={13} className="text-muted-foreground group-hover/stat:text-primary transition-colors" />
+          <span className="text-[11px] font-medium text-muted-foreground whitespace-nowrap">
             {project.spent}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 group/stat">
+          <Calendar size={13} className="text-muted-foreground group-hover/stat:text-primary transition-colors" />
+          <span className="text-[11px] font-medium text-muted-foreground whitespace-nowrap">
+            {project.dueDate}
           </span>
         </div>
       </div>
 
       {/* Team Avatars */}
-      <div className="px-5 py-3 flex items-center justify-between">
-        <div className="flex -space-x-1.5">
-          {project.team.map((member, i) => (
+      <div className="px-6 py-4 flex items-center justify-between">
+        <div className="flex -space-x-2">
+          {(project.team || []).map((member, i) => (
             <div
               key={i}
-              className="w-6 h-6 rounded-full flex items-center justify-center border-2 border-white"
+              className="w-7 h-7 rounded-full flex items-center justify-center border-2 border-background shadow-sm hover:z-10 transition-transform hover:-translate-y-1"
               style={{
                 backgroundColor: avatarColors[i % avatarColors.length],
-                fontSize: "9px",
+                fontSize: "10px",
                 fontWeight: 700,
                 color: "#FFFFFF",
-                fontFamily: "Inter, sans-serif",
               }}
               title={member.name}
             >
@@ -174,13 +139,11 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
             </div>
           ))}
         </div>
-        <span
-          className="text-xs"
-          style={{ color: "#9CA3AF", fontFamily: "Inter, sans-serif" }}
-        >
-          {project.team.length} member{project.team.length !== 1 ? "s" : ""}
+        <span className="text-[10px] font-semibold text-muted-foreground tracking-wide uppercase">
+          {project.team?.length || 0} member{(project.team?.length || 0) !== 1 ? "s" : ""}
         </span>
       </div>
     </div>
   );
 }
+
