@@ -3,6 +3,7 @@ import { useState } from "react";
 import { User, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useProjectStore } from "../../../store/projectStore";
+import { useUser, useClerk } from "@clerk/clerk-react";
 
 interface HeaderProps {
   title: string;
@@ -16,6 +17,8 @@ export function Header({ title, subtitle, actions }: HeaderProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const navigate = useNavigate();
+  const { user } = useUser();
+  const { signOut } = useClerk();
 
   return (
     <header className="h-16 bg-white border-b border-gray-100 px-6 flex items-center justify-between gap-4 sticky top-0 z-20">
@@ -187,7 +190,10 @@ export function Header({ title, subtitle, actions }: HeaderProps) {
                 </button>
 
                 <div className="border-t border-gray-100 mt-2 pt-2">
-                  <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-red-50 cursor-pointer text-sm text-red-600">
+                  <button
+                    onClick={() => signOut()}
+                    className="w-full flex items-center gap-2 px-4 py-2 hover:bg-red-50 cursor-pointer text-sm text-red-600"
+                  >
                     <LogOut size={16} />
                     Log out
                   </button>
