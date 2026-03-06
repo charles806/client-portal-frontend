@@ -13,7 +13,7 @@ import { ProjectCard } from "../components/dashboard/ProjectCard";
 import { AddProjectModal } from "../components/modals/AddProjectModal";
 import { useProjects } from "../hooks/useProjects";
 import { useWorkspaceStore } from '../store/workspaceStore';
-import { useUser } from '@clerk/clerk-react';
+import { useAuth } from '../context/AuthContext';
 import {
   AreaChart,
   Area,
@@ -27,8 +27,8 @@ import {
 import { activityData, recentActivity } from "../services/dashboardData";
 
 export default function Dashboard() {
-  const { user } = useUser(); // ADD THIS
-  const { currentWorkspaceId } = useWorkspaceStore(); // ADD THIS
+  const { user } = useAuth();
+  const { currentWorkspaceId } = useWorkspaceStore();
   const { projects, stats } = useProjects(currentWorkspaceId);
   const [addOpen, setAddOpen] = useState(false);
 
@@ -44,6 +44,14 @@ export default function Dashboard() {
     return "Good evening";
   };
 
+  const getDisplayName = () => {
+    if (user?.username) return user.username;
+    if (user?.firstName) return user.firstName;
+    if (user?.email) return user.email.split('@')[0];
+    return 'there';
+  };
+
+
   const formatCurrency = (n: number) =>
     new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -55,7 +63,7 @@ export default function Dashboard() {
     <div className="flex flex-col h-full">
       <Header
         title="Dashboard"
-        subtitle={`${greeting()}, ${user?.firstName ?? user?.fullName?.split(" ")[0] ?? "there"} 👋`}
+        subtitle={`${greeting()}, ${getDisplayName()} 👋`}
         action={
           <button
             onClick={() => setAddOpen(true)}
@@ -70,7 +78,7 @@ export default function Dashboard() {
 
       <div className="flex-1 p-6 space-y-6 overflow-y-auto">
         {/* Stats row */}
-        <div className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
             title="Total Projects"
             value={stats.total}

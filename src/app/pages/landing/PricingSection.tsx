@@ -136,21 +136,21 @@ const PricingSection: React.FC = () => {
           </p>
 
           {/* Toggle */}
-          <div className="inline-flex items-center gap-4 bg-gray-100 rounded-full p-1.5 border border-gray-200">
+          <div className="inline-flex items-center gap-4 bg-gray-100 rounded-full p-1.5 border border-gray-200 cursor-pointer">
             <button
               onClick={() => isYearly && handleToggle()}
-              className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 ${!isYearly
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-400 hover:text-gray-600'
+              className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 cursor-pointer ${!isYearly
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-400 hover:text-gray-600'
                 }`}
             >
               Monthly
             </button>
             <button
               onClick={() => !isYearly && handleToggle()}
-              className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 ${isYearly
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-400 hover:text-gray-600'
+              className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 cursor-pointer ${isYearly
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-400 hover:text-gray-600'
                 }`}
             >
               Yearly
@@ -167,7 +167,7 @@ const PricingSection: React.FC = () => {
             <div
               key={plan.name}
               className={`pricing-reveal rounded-4xl p-8 border relative transition-all duration-500 ${plan.popular
-                  ? 'pricing-popular bg-white' : 'bg-white border-gray-100 hover:border-primary-200 hover:shadow-primary-sm'
+                ? 'pricing-popular bg-white' : 'bg-white border-gray-100 hover:border-primary-200 hover:shadow-primary-sm'
                 }`}
               style={{
                 opacity: 0,
@@ -220,7 +220,7 @@ const PricingSection: React.FC = () => {
               <a
                 href="/signup"
                 className={`block text-center py-3.5 px-6 rounded-full text-sm font-bold transition-all duration-300 mb-7 ${plan.popular
-                    ? 'btn-primary' : 'border-2 border-gray-200 text-gray-700 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50'
+                  ? 'btn-primary' : 'border-2 border-gray-200 text-gray-700 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50'
                   }`}
               >
                 {plan.cta}

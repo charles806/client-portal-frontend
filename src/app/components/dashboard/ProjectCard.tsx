@@ -35,25 +35,25 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <h3 className="text-slate-900 truncate pr-2 mt-2" style={{ fontWeight: 600, fontSize: '1rem' }}>
             {project.name}
           </h3>
-          <p className="text-xs text-slate-500 mt-0.5 truncate">{project.client}</p>
+          <p className="text-xs text-slate-500 mt-0.5 truncate">{project.client || 'General Client'}</p>
         </div>
         <ArrowRight className="size-4 text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all duration-200 shrink-0 mt-1" />
       </div>
 
       <p className="text-sm text-slate-500 line-clamp-2 mb-4 leading-relaxed">
-        {project.description}
+        {project.description || 'No description provided.'}
       </p>
 
       {/* Progress */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-xs text-slate-500">Progress</span>
-          <span className="text-xs font-semibold text-slate-700">{project.progress}%</span>
+          <span className="text-xs font-semibold text-slate-700">{project.progress || 0}%</span>
         </div>
         <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-700 ${progressColors[project.status]}`}
-            style={{ width: `${project.progress}%` }}
+            style={{ width: `${project.progress || 0}%` }}
           />
         </div>
       </div>
@@ -63,16 +63,18 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
             <Calendar className="size-3.5" />
-            {new Date(project.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            {project.dueDate
+              ? new Date(project.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+              : 'No date'}
           </span>
           <span className={`flex items-center gap-1 ${isOverBudget ? 'text-red-500' : ''}`}>
             <DollarSign className="size-3.5" />
-            {budgetPercent}%
+            {budgetPercent || 0}%
           </span>
         </div>
         {/* Team avatars */}
         <div className="flex items-center">
-          {project.team.slice(0, 3).map((member, i) => (
+          {(project.team || []).slice(0, 3).map((member, i) => (
             <div
               key={member.id}
               className="size-6 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 border-2 border-white flex items-center justify-center text-white"
@@ -82,21 +84,21 @@ export function ProjectCard({ project }: ProjectCardProps) {
               {member.avatar}
             </div>
           ))}
-          {project.team.length > 3 && (
+          {(project.team?.length || 0) > 3 && (
             <div
               className="size-6 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-slate-600"
               style={{ fontSize: '0.6rem', fontWeight: 600, marginLeft: '-6px' }}
             >
-              +{project.team.length - 3}
+              +{(project.team?.length || 0) - 3}
             </div>
           )}
         </div>
       </div>
 
       {/* Tags */}
-      {project.tags.length > 0 && (
+      {(project.tags?.length || 0) > 0 && (
         <div className="flex flex-wrap gap-1.5 mt-4 pt-4 border-t border-slate-100">
-          {project.tags.slice(0, 3).map((tag) => (
+          {(project.tags || []).slice(0, 3).map((tag) => (
             <span
               key={tag}
               className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-md border border-indigo-100"

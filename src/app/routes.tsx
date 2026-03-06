@@ -1,5 +1,5 @@
 import { createBrowserRouter } from 'react-router';
-import { Root, ProtectedRoute, PublicRoute } from './components/layout/Root';
+import { Root, ProtectedRoute, PublicRoute, AuthenticatedRoute } from './components/layout/Root';
 import { Layout } from './components/layout/Layout';
 import Landing from './pages/Landing';
 import SignIn from './pages/SignIn';
@@ -14,26 +14,29 @@ import Settings from './pages/Settings';
 import WorkspaceSettings from './pages/WorkspaceSettings';
 import ApiTest from './pages/ApiTest';
 import NotFound from './pages/NotFound';
-import SSOCallback from './pages/SSOCallback';
 
 export const router = createBrowserRouter([
   {
     path: '/',
     Component: Root,
     children: [
-      // Public routes (redirect to dashboard if logged in)
+      // Public routes (redirect to dashboard/onboarding if logged in)
       {
         Component: PublicRoute,
         children: [
           { index: true, Component: Landing },
           { path: 'signin', Component: SignIn },
           { path: 'signup', Component: SignUp },
-          { path: 'sso-callback', Component: SSOCallback },
         ],
       },
 
       // Onboarding (auth required, not yet onboarded)
-      { path: 'onboarding', Component: Onboarding },
+      {
+        Component: AuthenticatedRoute,
+        children: [
+          { path: 'onboarding', Component: Onboarding },
+        ],
+      },
 
       // Protected routes (auth + onboarding complete)
       {

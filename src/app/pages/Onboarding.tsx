@@ -2,15 +2,16 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Zap, ArrowRight, Check } from "lucide-react";
 import { Spinner } from "../components/ui/ios-spinner";
+import { Input } from "../components/ui/input";
 
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "../context/AuthContext";
 import { useWorkspaces } from "../hooks/useWorkspaces";
 import { useWorkspaceStore } from "../store/workspaceStore";
 import { toast } from "sonner";
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { user } = useUser();
+  const { user } = useAuth();
   const { createWorkspace } = useWorkspaces();
   const { setCurrentWorkspace } = useWorkspaceStore();
   const [step, setStep] = useState<"welcome" | "create" | "success">("welcome");
@@ -109,13 +110,12 @@ export default function Onboarding() {
                 >
                   Workspace name <span className="text-red-400">*</span>
                 </label>
-                <input
+                <Input
                   autoFocus
                   value={workspaceName}
                   onChange={(e) => setWorkspaceName(e.target.value)}
                   placeholder="My Company"
-                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
-                  style={{ fontSize: "0.9rem" }}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all font-normal"
                 />
               </div>
 

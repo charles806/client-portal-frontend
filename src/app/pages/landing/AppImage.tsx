@@ -57,6 +57,18 @@ function AppImage({
         setHasError(false);
     };
 
+    // Scrub Next.js specific props before passing to img tag
+    const {
+        priority: _priority,
+        quality: _quality,
+        placeholder: _placeholder,
+        blurDataURL: _blurDataURL,
+        fill: _fill,
+        sizes: _sizes,
+        unoptimized: _unoptimized,
+        ...restProps
+    } = props;
+
     const commonClassName = `${className} ${isLoading ? 'bg-gray-200' : ''} ${onClick ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''}`;
 
     // For external URLs or when in doubt, use regular img tag
@@ -77,7 +89,7 @@ function AppImage({
                         onLoad={handleLoad}
                         onClick={onClick}
                         style={imgStyle}
-                        {...props}
+                        {...restProps}
                     />
                 </div>
             );
@@ -92,32 +104,23 @@ function AppImage({
                 onLoad={handleLoad}
                 onClick={onClick}
                 style={imgStyle}
-                {...props}
+                {...restProps}
             />
         );
     }
 
-    // For local images and data URLs, use Next.js Image component
-    const imageProps = {
-        src: imageSrc,
-        alt,
-        className: commonClassName,
-        priority,
-        quality,
-        placeholder,
-        blurDataURL,
-        unoptimized: true,
-        onError: handleError,
-        onLoad: handleLoad,
-        onClick,
-        ...props,
-    };
-
+    // For local images and data URLs
     if (fill) {
         return (
             <div className={`relative ${className}`}>
                 <img
-                    {...imageProps}
+                    src={imageSrc}
+                    alt={alt}
+                    className={commonClassName}
+                    onError={handleError}
+                    onLoad={handleLoad}
+                    onClick={onClick}
+                    {...restProps}
                     style={{ objectFit: 'cover', position: 'absolute', inset: 0, width: '100%', height: '100%' }}
                 />
             </div>
@@ -126,7 +129,13 @@ function AppImage({
 
     return (
         <img
-            {...imageProps}
+            src={imageSrc}
+            alt={alt}
+            className={commonClassName}
+            onError={handleError}
+            onLoad={handleLoad}
+            onClick={onClick}
+            {...restProps}
             width={width || 400}
             height={height || 300}
         />

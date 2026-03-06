@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useApi } from '../services/api';
+import apiClient from '../services/api';
 import { toast } from 'sonner';
 
 export interface Project {
@@ -34,18 +34,22 @@ export interface Milestone {
 }
 
 export function useProjects(workspaceId: string | undefined) {
-  const api = useApi();
   const queryClient = useQueryClient();
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['workspaces', workspaceId, 'projects'],
-    queryFn: () => api.get<Project[]>(`/projects?workspaceId=${workspaceId}`),
+    queryFn: async () => {
+      const response = await apiClient.get(`/projects?workspaceId=${workspaceId}`);
+      return response.data;
+    },
     enabled: !!workspaceId,
   });
 
   const createProject = useMutation({
-    mutationFn: (data: Partial<Project> & { workspaceId: string }) =>
-      api.post<Project>('/projects', data),
+    mutationFn: async (data: Partial<Project> & { workspaceId: string }) => {
+      const response = await apiClient.post('/projects', data);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'projects'] });
       toast.success('Project created!');
@@ -56,8 +60,10 @@ export function useProjects(workspaceId: string | undefined) {
   });
 
   const updateProject = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Project> }) =>
-      api.patch<Project>(`/projects/${id}`, data),
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Project> }) => {
+      const response = await apiClient.patch(`/projects/${id}`, data);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'projects'] });
       toast.success('Project updated!');
@@ -68,7 +74,10 @@ export function useProjects(workspaceId: string | undefined) {
   });
 
   const deleteProject = useMutation({
-    mutationFn: (id: string) => api.delete(`/projects/${id}`),
+    mutationFn: async (id: string) => {
+      const response = await apiClient.delete(`/projects/${id}`);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'projects'] });
       toast.success('Project deleted!');
@@ -80,13 +89,13 @@ export function useProjects(workspaceId: string | undefined) {
 
   const stats = {
     total: projects.length,
-    active: projects.filter((p) => p.status === 'active').length,
-    completed: projects.filter((p) => p.status === 'completed').length,
-    onHold: projects.filter((p) => p.status === 'on-hold').length,
-    totalBudget: projects.reduce((acc, p) => acc + p.budget, 0),
-    totalSpent: projects.reduce((acc, p) => acc + p.spent, 0),
+    active: projects.filter((p: { status: string; }) => p.status === 'active').length,
+    completed: projects.filter((p: { status: string; }) => p.status === 'completed').length,
+    onHold: projects.filter((p: { status: string; }) => p.status === 'on-hold').length,
+    totalBudget: projects.reduce((acc: any, p: { budget: any; }) => acc + p.budget, 0),
+    totalSpent: projects.reduce((acc: any, p: { spent: any; }) => acc + p.spent, 0),
     avgProgress: projects.length
-      ? Math.round(projects.reduce((acc, p) => acc + p.progress, 0) / projects.length)
+      ? Math.round(projects.reduce((acc: any, p: { progress: any; }) => acc + p.progress, 0) / projects.length)
       : 0,
   };
 
@@ -101,28 +110,33 @@ export function useProjects(workspaceId: string | undefined) {
 }
 
 export function useProject(id: string | undefined) {
-  const api = useApi();
-
   return useQuery({
     queryKey: ['projects', id],
-    queryFn: () => api.get<Project>(`/projects/${id}`),
+    queryFn: async () => {
+      const response = await apiClient.get(`/projects/${id}`);
+      return response.data;
+    },
     enabled: !!id,
   });
 }
 
 export function useMilestones(projectId: string | undefined) {
-  const api = useApi();
   const queryClient = useQueryClient();
 
   const { data: milestones = [], isLoading } = useQuery({
     queryKey: ['projects', projectId, 'milestones'],
-    queryFn: () => api.get<Milestone[]>(`/projects/${projectId}/milestones`),
+    queryFn: async () => {
+      const response = await apiClient.get(`/projects/${projectId}/milestones`);
+      return response.data;
+    },
     enabled: !!projectId,
   });
 
   const createMilestone = useMutation({
-    mutationFn: (data: Partial<Milestone>) =>
-      api.post<Milestone>(`/projects/${projectId}/milestones`, data),
+    mutationFn: async (data: Partial<Milestone>) => {
+      const response = await apiClient.post(`/projects/${projectId}/milestones`, data);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects', projectId, 'milestones'] });
       toast.success('Milestone created!');
@@ -130,8 +144,10 @@ export function useMilestones(projectId: string | undefined) {
   });
 
   const updateMilestone = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Milestone> }) =>
-      api.patch<Milestone>(`/milestones/${id}`, data),
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Milestone> }) => {
+      const response = await apiClient.patch(`/milestones/${id}`, data);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects', projectId, 'milestones'] });
       toast.success('Milestone updated!');
@@ -139,7 +155,10 @@ export function useMilestones(projectId: string | undefined) {
   });
 
   const deleteMilestone = useMutation({
-    mutationFn: (id: string) => api.delete(`/milestones/${id}`),
+    mutationFn: async (id: string) => {
+      const response = await apiClient.delete(`/milestones/${id}`);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects', projectId, 'milestones'] });
       toast.success('Milestone deleted!');

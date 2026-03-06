@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { X, Save } from 'lucide-react';
 import { Spinner } from '../ui/ios-spinner';
+import { Input } from '../ui/input';
+import { Textarea } from '../ui/textarea';
+import { sanitizeValue } from '../ui/sanitization';
 
 import { useProjects } from '../../hooks/useProjects';
 import { useWorkspaceStore } from '../../store/workspaceStore';
@@ -95,25 +98,25 @@ export function EditProjectModal({ project, onClose }: EditProjectModalProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>Project Name</label>
-              <input
+              <Input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm font-normal"
               />
             </div>
             <div>
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>Client</label>
-              <input
+              <Input
                 value={form.client}
                 onChange={(e) => setForm({ ...form, client: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm font-normal"
               />
             </div>
             <div>
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>Status</label>
               <select
                 value={form.status}
-                onChange={(e) => setForm({ ...form, status: e.target.value as ProjectStatus })}
+                onChange={(e) => setForm({ ...form, status: sanitizeValue(e.target.value) as ProjectStatus })}
                 className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm cursor-pointer"
               >
                 <option value="planning">Planning</option>
@@ -124,48 +127,48 @@ export function EditProjectModal({ project, onClose }: EditProjectModalProps) {
             </div>
             <div>
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>Progress (%)</label>
-              <input
+              <Input
                 type="number"
                 min="0"
                 max="100"
                 value={form.progress}
                 onChange={(e) => setForm({ ...form, progress: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm font-normal"
               />
             </div>
             <div>
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>Budget ($)</label>
-              <input
+              <Input
                 type="number"
                 value={form.budget}
                 onChange={(e) => setForm({ ...form, budget: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm font-normal"
               />
             </div>
             <div>
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>Due Date</label>
-              <input
+              <Input
                 type="date"
                 value={form.dueDate}
                 onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm cursor-pointer"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm cursor-pointer font-normal"
               />
             </div>
             <div className="col-span-2">
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>Description</label>
-              <textarea
+              <Textarea
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm resize-none"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm resize-none font-normal"
               />
             </div>
             <div className="col-span-2">
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>Tags (comma-separated)</label>
-              <input
+              <Input
                 value={form.tags}
                 onChange={(e) => setForm({ ...form, tags: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm font-normal"
               />
             </div>
           </div>

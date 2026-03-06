@@ -1,8 +1,17 @@
 import * as React from "react";
 
 import { cn } from "./utils";
+import { sanitizeValue } from "./sanitization";
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+function Input({ className, type, onChange, onBlur, ...props }: React.ComponentProps<"input">) {
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Sanitize on blur to trim and clean up final value without interfering with typing
+    e.target.value = sanitizeValue(e.target.value);
+    if (onBlur) {
+      onBlur(e);
+    }
+  };
+
   return (
     <input
       type={type}
@@ -13,6 +22,8 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
         "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
         className,
       )}
+      onBlur={handleBlur}
+      onChange={onChange}
       {...props}
     />
   );

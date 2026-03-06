@@ -1,55 +1,55 @@
-import { useAuth } from '@clerk/clerk-react';
 import axios from 'axios';
+import { showErrorGlobal } from '../context/ErrorContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
 
-export interface ApiResponse<T> {
-  data: T;
-  success: boolean;
-  message?: string;
-  error?: string;
-}
-
-// Create axios instance
-const apiClient = axios.create({
+// Public client for login/register
+export const publicClient = axios.create({
   baseURL: API_URL,
+  withCredentials: true, // Allow cookies
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Hook to get authenticated API client
-export function useApi() {
-  const { getToken } = useAuth();
+// Private client for authenticated requests
+export const privateClient = axios.create({
+  baseURL: API_URL,
+  withCredentials: true, // Allow cookies
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-  const authenticatedClient = axios.create({
-    baseURL: API_URL,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+// Interceptor for errors
+const setupInterceptors = (instance: any) => {
+  instance.interceptors.response.use(
+    (response: any) => response,
+    (error: any) => {
+      const status = error.response?.status;
+      const data = error.response?.data;
+      const message = data?.error || 'An unexpected error occurred';
 
-  // Add auth token to every request
-  authenticatedClient.interceptors.request.use(async (config) => {
-    const token = await getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      // Global error handling for specific status codes
+      if ([400, 403, 404, 409, 422].includes(status)) {
+        showErrorGlobal(message, 'Action Failed');
+      } else if (status === 401) {
+        // Only show error for 401 if it's NOT a silent check or NOT the /auth/me call on mount
+        // For now, let's let AuthContext handle 401 for /auth/me
+        if (!error.config.url.includes('/auth/me')) {
+          showErrorGlobal(message, 'Session Expired');
+        }
+      } else if (status >= 500) {
+        // Don't show technical errors to user in detail, but show a generic one
+        showErrorGlobal('Server is currently unavailable. Please try again later.', 'Server Error');
+      }
+
+      return Promise.reject(error);
     }
-    return config;
-  });
+  );
+};
 
-  return {
-    get: <T>(endpoint: string) =>
-      authenticatedClient.get<T>(endpoint).then((res) => res.data),
-    post: <T>(endpoint: string, body: unknown) =>
-      authenticatedClient.post<T>(endpoint, body).then((res) => res.data),
-    put: <T>(endpoint: string, body: unknown) =>
-      authenticatedClient.put<T>(endpoint, body).then((res) => res.data),
-    patch: <T>(endpoint: string, body: unknown) =>
-      authenticatedClient.patch<T>(endpoint, body).then((res) => res.data),
-    delete: <T>(endpoint: string) =>
-      authenticatedClient.delete<T>(endpoint).then((res) => res.data),
-  };
-}
+setupInterceptors(publicClient);
+setupInterceptors(privateClient);
 
-export default apiClient;
+export default privateClient;

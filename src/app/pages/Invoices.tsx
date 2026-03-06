@@ -3,6 +3,7 @@ import { FileText, Plus, Download, Send, Eye, Search, DollarSign, Clock, CheckCi
 import { Header } from '../components/layout/Header';
 import { useProjects } from '../hooks/useProjects';
 import { toast } from 'sonner';
+import { Input } from '../components/ui/input';
 
 type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue';
 
@@ -175,11 +176,11 @@ export default function Invoices() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-5">
           <div className="relative flex-1 max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-slate-400" />
-            <input
+            <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search invoices..."
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/80 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/80 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm font-normal"
             />
           </div>
           <div className="flex items-center gap-1.5 bg-white/70 backdrop-blur border border-slate-200 rounded-xl p-1">

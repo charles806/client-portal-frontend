@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useApi } from '../services/api';
+import apiClient from '../services/api';
 import { toast } from 'sonner';
 
 export interface Workspace {
@@ -23,24 +23,30 @@ export interface WorkspaceMember {
   joinedAt: string;
   user?: {
     id: string;
-    firstName: string;
-    lastName: string;
-    emailAddress: string;
-    imageUrl: string;
+    email: string;
+    username?: string;
+    firstName?: string;
+    lastName?: string;
   };
 }
 
-export function useWorkspaces() {
-  const api = useApi();
+export function useWorkspaces(options: { enabled?: boolean } = { enabled: true }) {
   const queryClient = useQueryClient();
 
   const { data: workspaces = [], isLoading } = useQuery({
     queryKey: ['workspaces'],
-    queryFn: () => api.get<Workspace[]>('/workspaces'),
+    queryFn: async () => {
+      const response = await apiClient.get('/workspaces');
+      return response.data;
+    },
+    enabled: options.enabled,
   });
 
   const createWorkspace = useMutation({
-    mutationFn: (data: { name: string }) => api.post<Workspace>('/workspaces', data),
+    mutationFn: async (data: { name: string }) => {
+      const response = await apiClient.post('/workspaces', data);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workspaces'] });
       toast.success('Workspace created!');
@@ -58,28 +64,33 @@ export function useWorkspaces() {
 }
 
 export function useWorkspace(id: string | undefined) {
-  const api = useApi();
-
   return useQuery({
     queryKey: ['workspaces', id],
-    queryFn: () => api.get<Workspace>(`/workspaces/${id}`),
+    queryFn: async () => {
+      const response = await apiClient.get(`/workspaces/${id}`);
+      return response.data;
+    },
     enabled: !!id,
   });
 }
 
 export function useWorkspaceMembers(workspaceId: string | undefined) {
-  const api = useApi();
   const queryClient = useQueryClient();
 
   const { data: members = [], isLoading } = useQuery({
     queryKey: ['workspaces', workspaceId, 'members'],
-    queryFn: () => api.get<WorkspaceMember[]>(`/workspaces/${workspaceId}/members`),
+    queryFn: async () => {
+      const response = await apiClient.get(`/workspaces/${workspaceId}/members`);
+      return response.data;
+    },
     enabled: !!workspaceId,
   });
 
   const inviteMember = useMutation({
-    mutationFn: (data: { email: string; role: 'admin' | 'member' }) =>
-      api.post(`/workspaces/${workspaceId}/members`, data),
+    mutationFn: async (data: { email: string; role: 'admin' | 'member' }) => {
+      const response = await apiClient.post(`/workspaces/${workspaceId}/members`, data);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'members'] });
       toast.success('Member invited!');
@@ -90,8 +101,10 @@ export function useWorkspaceMembers(workspaceId: string | undefined) {
   });
 
   const updateMemberRole = useMutation({
-    mutationFn: ({ memberId, role }: { memberId: string; role: 'admin' | 'member' }) =>
-      api.patch(`/workspaces/${workspaceId}/members/${memberId}`, { role }),
+    mutationFn: async ({ memberId, role }: { memberId: string; role: 'admin' | 'member' }) => {
+      const response = await apiClient.patch(`/workspaces/${workspaceId}/members/${memberId}`, { role });
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'members'] });
       toast.success('Role updated!');
@@ -102,8 +115,10 @@ export function useWorkspaceMembers(workspaceId: string | undefined) {
   });
 
   const removeMember = useMutation({
-    mutationFn: (memberId: string) =>
-      api.delete(`/workspaces/${workspaceId}/members/${memberId}`),
+    mutationFn: async (memberId: string) => {
+      const response = await apiClient.delete(`/workspaces/${workspaceId}/members/${memberId}`);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'members'] });
       toast.success('Member removed!');

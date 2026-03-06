@@ -4,18 +4,23 @@ import { CheckCircle2, Circle, Calendar, ExternalLink, Filter } from 'lucide-rea
 import { Header } from '../components/layout/Header';
 import { StatusBadge } from '../components/dashboard/StatusBadge';
 import { useProjects } from '../hooks/useProjects';
+import { sanitizeValue } from '../components/ui/sanitization';
+import { useWorkspaceStore } from '../store/workspaceStore';
+import type { Project } from '../hooks/useProjects';
 
 type FilterType = 'all' | 'pending' | 'completed' | 'overdue';
 
 export default function Timeline() {
-  const { projects, completeMilestone } = useProjects();
+  const { currentWorkspaceId } = useWorkspaceStore();
+  const { projects } = useProjects(currentWorkspaceId || undefined);
+  const completeMilestone = (pid: string, mid: string) => { }; // Placeholder for now
   const navigate = useNavigate();
   const [filter, setFilter] = useState<FilterType>('all');
   const [selectedProject, setSelectedProject] = useState<string>('all');
 
   // Collect all milestones with project info
-  const allMilestones = projects.flatMap((project) =>
-    project.milestones.map((m) => ({ ...m, project }))
+  const allMilestones = projects.flatMap((project: any) =>
+    (project.milestones || []).map((m: any) => ({ ...m, project }))
   );
 
   // Apply filters
@@ -93,7 +98,7 @@ export default function Timeline() {
             <Filter className="size-3.5 text-slate-400" />
             <select
               value={selectedProject}
-              onChange={(e) => setSelectedProject(e.target.value)}
+              onChange={(e) => setSelectedProject(sanitizeValue(e.target.value))}
               className="px-3 py-2 rounded-xl bg-white/80 border border-slate-200 text-slate-700 text-xs outline-none focus:border-indigo-400 transition-all cursor-pointer"
               style={{ fontWeight: 500 }}
             >

@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Plus, Search, Filter, FolderKanban, LayoutGrid, List } from 'lucide-react';
 import { Header } from '../components/layout/Header';
 import { ProjectCard } from '../components/dashboard/ProjectCard';
+import { Input } from '../components/ui/input';
 import { StatusBadge } from '../components/dashboard/StatusBadge';
 import { AddProjectModal } from '../components/modals/AddProjectModal';
 import { useProjects } from '../hooks/useProjects';
 import { useNavigate } from 'react-router';
 import type { ProjectStatus } from '../store/projectStore';
+import { useWorkspaceStore } from '../store/workspaceStore';
 
 const statusFilters: { label: string; value: ProjectStatus | 'all' }[] = [
   { label: 'All', value: 'all' },
@@ -17,7 +19,8 @@ const statusFilters: { label: string; value: ProjectStatus | 'all' }[] = [
 ];
 
 export default function Projects() {
-  const { projects, stats } = useProjects();
+  const { currentWorkspaceId } = useWorkspaceStore();
+  const { projects, stats } = useProjects(currentWorkspaceId || undefined);
   const navigate = useNavigate();
   const [addOpen, setAddOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -58,11 +61,11 @@ export default function Projects() {
           {/* Search */}
           <div className="relative flex-1 max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-slate-400" />
-            <input
+            <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search projects..."
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/80 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/80 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm font-normal"
             />
           </div>
 
@@ -116,7 +119,7 @@ export default function Projects() {
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+              <ProjectCard key={project.id} project={project as any} />
             ))}
           </div>
         ) : (

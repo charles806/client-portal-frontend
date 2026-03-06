@@ -9,10 +9,13 @@ import {
   Check,
 } from "lucide-react";
 import { Spinner } from "../components/ui/ios-spinner";
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
+import { sanitizeValue } from "../components/ui/sanitization";
 
 import { Header } from "../components/layout/Header";
 import { toast } from "sonner";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "../context/AuthContext";
 
 type Tab = "profile" | "notifications" | "security" | "appearance";
 
@@ -24,13 +27,13 @@ const tabs: { id: Tab; label: string; icon: typeof User }[] = [
 ];
 
 export default function Settings() {
-  const { user } = useUser();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState({
-    name: user?.name ?? "Alex Morgan",
+    name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || 'User' : "Alex Morgan",
     email: user?.email ?? "alex@nexusstudio.io",
-    role: user?.role ?? "Owner",
+    role: "Owner",
     bio: "Building great digital products with an amazing team.",
     timezone: "UTC-5 (Eastern Time)",
     language: "English",
@@ -127,7 +130,7 @@ export default function Settings() {
                       >
                         {profile.name
                           .split(" ")
-                          .map((n) => n[0])
+                          .map((n: string) => n[0])
                           .join("")
                           .slice(0, 2)}
                       </div>
@@ -160,7 +163,7 @@ export default function Settings() {
                           >
                             Full name
                           </label>
-                          <input
+                          <Input
                             value={profile.name}
                             onChange={(e) =>
                               setProfile({ ...profile, name: e.target.value })
@@ -175,7 +178,7 @@ export default function Settings() {
                           >
                             Email
                           </label>
-                          <input
+                          <Input
                             type="email"
                             value={profile.email}
                             onChange={(e) =>
@@ -192,7 +195,7 @@ export default function Settings() {
                         >
                           Bio
                         </label>
-                        <textarea
+                        <Textarea
                           value={profile.bio}
                           onChange={(e) =>
                             setProfile({ ...profile, bio: e.target.value })
@@ -214,7 +217,7 @@ export default function Settings() {
                             onChange={(e) =>
                               setProfile({
                                 ...profile,
-                                timezone: e.target.value,
+                                timezone: sanitizeValue(e.target.value),
                               })
                             }
                             className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 outline-none focus:border-indigo-400 transition-all text-sm cursor-pointer"
@@ -239,7 +242,7 @@ export default function Settings() {
                             onChange={(e) =>
                               setProfile({
                                 ...profile,
-                                language: e.target.value,
+                                language: sanitizeValue(e.target.value),
                               })
                             }
                             className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 outline-none focus:border-indigo-400 transition-all text-sm cursor-pointer"
@@ -377,17 +380,17 @@ export default function Settings() {
                           </p>
                         </div>
                         <div className="space-y-3">
-                          <input
+                          <Input
                             type="password"
                             placeholder="Current password"
                             className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 transition-all text-sm"
                           />
-                          <input
+                          <Input
                             type="password"
                             placeholder="New password"
                             className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 transition-all text-sm"
                           />
-                          <input
+                          <Input
                             type="password"
                             placeholder="Confirm new password"
                             className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 transition-all text-sm"

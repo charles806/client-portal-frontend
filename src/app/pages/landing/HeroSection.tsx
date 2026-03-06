@@ -107,7 +107,7 @@ const HeroSection: React.FC = () => {
             </div>
 
             {/* Trust indicator */}
-            <div className="flex items-center gap-3 pt-2">
+            {/* <div className="flex items-center gap-3 pt-2">
               <div className="flex -space-x-2">
                 {[
                   'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=80&h=80&dpr=1',
@@ -134,12 +134,12 @@ const HeroSection: React.FC = () => {
                 </div>
                 <p className="text-xs text-gray-400 font-medium mt-0.5">Trusted by 1,200+ agencies</p>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Right: 3D Dashboard Preview */}
           <div className="relative hidden lg:block">
-            <div className="dashboard-3d-wrapper">
+            <div className="dashboard-3d-wrapper cursor-pointer">
               <div className="dashboard-3d-inner">
                 {/* Main dashboard card */}
                 <div className="glass-card p-3 primary-glow-lg overflow-hidden">

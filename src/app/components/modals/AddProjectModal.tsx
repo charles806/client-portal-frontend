@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { X, Plus } from 'lucide-react';
 import { Spinner } from '../ui/ios-spinner';
+import { Input } from '../ui/input';
+import { Textarea } from '../ui/textarea';
 
 import { useProjects } from '../../hooks/useProjects';
 import { useWorkspaceStore } from '../../store/workspaceStore';
 import type { ProjectStatus } from '../../store/projectStore';
+import { sanitizeValue } from '../ui/sanitization';
 
 import { toast } from 'sonner';
 
@@ -86,29 +89,29 @@ export function AddProjectModal({ open, onClose }: AddProjectModalProps) {
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>
                 Project Name <span className="text-red-400">*</span>
               </label>
-              <input
+              <Input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="e.g. Client Portal Redesign"
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm font-normal"
               />
             </div>
             <div>
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>
                 Client <span className="text-red-400">*</span>
               </label>
-              <input
+              <Input
                 value={form.client}
                 onChange={(e) => setForm({ ...form, client: e.target.value })}
                 placeholder="Client name"
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm font-normal"
               />
             </div>
             <div>
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>Status</label>
               <select
                 value={form.status}
-                onChange={(e) => setForm({ ...form, status: e.target.value as ProjectStatus })}
+                onChange={(e) => setForm({ ...form, status: sanitizeValue(e.target.value) as ProjectStatus })}
                 className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm cursor-pointer"
               >
                 <option value="planning">Planning</option>
@@ -121,51 +124,51 @@ export function AddProjectModal({ open, onClose }: AddProjectModalProps) {
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>
                 Start Date
               </label>
-              <input
+              <Input
                 type="date"
                 value={form.startDate}
                 onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm cursor-pointer"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm cursor-pointer font-normal"
               />
             </div>
             <div>
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>
                 Due Date <span className="text-red-400">*</span>
               </label>
-              <input
+              <Input
                 type="date"
                 value={form.dueDate}
                 onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm cursor-pointer"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm cursor-pointer font-normal"
               />
             </div>
             <div className="col-span-2">
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>Description</label>
-              <textarea
+              <Textarea
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 placeholder="Brief project description..."
                 rows={3}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm resize-none"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm resize-none font-normal"
               />
             </div>
             <div>
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>Budget ($)</label>
-              <input
+              <Input
                 type="number"
                 value={form.budget}
                 onChange={(e) => setForm({ ...form, budget: e.target.value })}
                 placeholder="0"
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm font-normal"
               />
             </div>
             <div>
               <label className="block text-xs text-slate-600 mb-1.5" style={{ fontWeight: 600 }}>Tags (comma-separated)</label>
-              <input
+              <Input
                 value={form.tags}
                 onChange={(e) => setForm({ ...form, tags: e.target.value })}
                 placeholder="Design, Frontend, API"
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all text-sm font-normal"
               />
             </div>
           </div>

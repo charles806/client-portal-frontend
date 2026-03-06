@@ -14,16 +14,22 @@ import {
 import { useThemeStore } from "../../store/themeStore";
 import { useWorkspaceStore } from "../../store/workspaceStore";
 import { toast } from "sonner";
-import { useUser, useClerk } from "@clerk/clerk-react";
+import { useAuth } from "../../context/AuthContext";
 
-const navItems = [
+interface NavItem {
+  icon: any;
+  label: string;
+  to: string;
+}
+
+const navItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", to: "/dashboard" },
   { icon: FolderKanban, label: "Projects", to: "/projects" },
   { icon: GitBranch, label: "Timeline", to: "/timeline" },
   { icon: FileText, label: "Invoices", to: "/invoices" },
 ];
 
-const bottomItems = [
+const bottomItems: NavItem[] = [
   { icon: Building2, label: "Workspace", to: "/workspace" },
   { icon: Settings, label: "Settings", to: "/settings" },
 ];
@@ -32,12 +38,22 @@ export function Sidebar() {
   const { sidebarCollapsed, toggleSidebar } = useThemeStore();
   const { workspace } = useWorkspaceStore();
   const navigate = useNavigate();
-  const { user } = useUser();
-  const { signOut } = useClerk();
+  const { user, logout } = useAuth();
 
-  const handleLogout = () => {
-    signOut(() => navigate("/"));
-    toast.success("Logged out successfully");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Logged out successfully");
+    } catch (error) {
+      toast.error("Logout failed");
+    }
+  };
+
+  const getInitials = () => {
+    if (user?.firstName && user?.lastName) {
+      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+    }
+    return user?.username?.slice(0, 2).toUpperCase() || user?.email?.slice(0, 2).toUpperCase() || "U";
   };
 
   return (
@@ -45,7 +61,6 @@ export function Sidebar() {
       className={`relative flex flex-col h-screen bg-slate-900 border-r border-slate-800 transition-all duration-300 ${sidebarCollapsed ? "w-16" : "w-60"}`}
       style={{ flexShrink: 0 }}
     >
-      {/* Logo */}
       <div
         className={`flex items-center h-16 px-4 border-b border-slate-800 ${sidebarCollapsed ? "justify-center" : "gap-3"}`}
       >
@@ -166,24 +181,20 @@ export function Sidebar() {
               className="size-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white shrink-0"
               style={{ fontSize: "0.7rem", fontWeight: 700 }}
             >
-              {user?.name
-                ?.split(" ")
-                .map((n) => n[0])
-                .join("")
-                .slice(0, 2) ?? "AM"}
+              {getInitials()}
             </div>
             <div className="flex-1 overflow-hidden">
               <p
                 className="text-white truncate"
                 style={{ fontWeight: 500, fontSize: "0.8rem" }}
               >
-                {user?.name ?? "Alex Morgan"}
+                {user?.username || user?.firstName || user?.email?.split('@')[0] || "User"}
               </p>
               <p
                 className="text-slate-500 truncate"
                 style={{ fontSize: "0.7rem" }}
               >
-                {user?.role ?? "Owner"}
+                {user?.email}
               </p>
             </div>
             <button
@@ -207,3 +218,4 @@ export function Sidebar() {
     </aside>
   );
 }
+
