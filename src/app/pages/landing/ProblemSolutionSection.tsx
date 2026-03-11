@@ -120,7 +120,7 @@ const ProblemSolutionSection: React.FC = () => {
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-2xl bg-primary-100 flex items-center justify-center text-xl"><Sparkle /></div>
               <div>
-                <h3 className="font-bold text-gray-900 text-lg">With ClientPortal</h3>
+                <h3 className="font-bold text-gray-900 text-lg">With Portalwave</h3>
                 <p className="text-sm text-primary-600 font-medium">1 portal, total clarity</p>
               </div>
             </div>

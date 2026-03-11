@@ -56,10 +56,25 @@ export function useWorkspaces(options: { enabled?: boolean } = { enabled: true }
     },
   });
 
+  const updateWorkspace = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: { name: string } }) => {
+      const response = await apiClient.patch(`/workspaces/${id}`, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+      toast.success('Workspace updated!');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || 'Failed to update workspace');
+    },
+  });
+
   return {
     workspaces,
     isLoading,
     createWorkspace: createWorkspace.mutateAsync,
+    updateWorkspace: updateWorkspace.mutateAsync,
   };
 }
 

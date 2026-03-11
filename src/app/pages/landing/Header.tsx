@@ -23,8 +23,8 @@ const Header: React.FC = () => {
   return (
     <header
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled
-          ? 'bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm py-3'
-          : 'bg-transparent py-5'
+        ? 'bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm py-3'
+        : 'bg-transparent py-5'
         }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
@@ -32,7 +32,7 @@ const Header: React.FC = () => {
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
           <AppLogo
             size={32}
-            text="ClientPortal"
+            text="PortalWave"
             className="text-primary-600"
           />
         </div>
@@ -99,7 +99,7 @@ const Header: React.FC = () => {
             </a>
           ))}
           <div className="pt-3 border-t border-gray-100 flex flex-col gap-2">
-            <a href="/login" className="text-sm font-semibold text-gray-600 py-2">Log in</a>
+            <a href="/signin" className="text-sm font-semibold text-gray-600 py-2">Log in</a>
             <a href="/signup" className="btn-primary px-6 py-3 text-sm text-center">Get Started Free</a>
           </div>
         </div>

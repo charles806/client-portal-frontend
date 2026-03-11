@@ -1,4 +1,4 @@
-import { Outlet, Navigate } from 'react-router';
+import { Outlet, Navigate, useLocation } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import { useWorkspaces } from '../../hooks/useWorkspaces';
 import { Spinner } from '../ui/ios-spinner';
@@ -22,14 +22,13 @@ export function Root() {
 }
 
 /**
- * For routes that require auth AND onboarding completion (e.g. Dashboard)
+ * For routes that ONLY need authentication (NOT workspace)
+ * Used for: /onboarding, /setup-account
  */
-export function ProtectedRoute() {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-  // Only fetch workspaces if authenticated
-  const { workspaces, isLoading: workspacesLoading } = useWorkspaces({ enabled: isAuthenticated });
+export function AuthOnlyRoute() {
+  const { isAuthenticated, isLoading } = useAuth();
 
-  if (authLoading || (isAuthenticated && workspacesLoading)) {
+  if (isLoading) {
     return <LoadingScreen />;
   }
 
@@ -37,46 +36,54 @@ export function ProtectedRoute() {
     return <Navigate to="/signin" replace />;
   }
 
-  if (workspaces.length === 0) {
-    return <Navigate to="/onboarding" replace />;
-  }
-
   return <Outlet />;
 }
 
 /**
- * For routes that require auth but NOT onboarding completion (e.g. Onboarding itself)
+ * For routes that require auth AND workspace (e.g. Dashboard)
  */
-export function AuthenticatedRoute() {
+export function ProtectedRoute() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { workspaces, isLoading: workspacesLoading } = useWorkspaces();
+
+  console.log('=== PROTECTED ROUTE ===');
+  console.log('isAuthenticated:', isAuthenticated);
+  console.log('authLoading:', authLoading);
+  console.log('workspaces:', workspaces);
+  console.log('workspacesLoading:', workspacesLoading);
+  console.log('======================');
+
+  if (authLoading || workspacesLoading) {
+    console.log('⏳ Loading...');
+    return <LoadingScreen />;
+  }
+
+  if (!isAuthenticated) {
+    console.log('❌ Not authenticated, redirecting to /signin');
+    return <Navigate to="/signin" replace />;
+  }
+
+  if (workspaces.length === 0) {
+    console.log('⚠️ No workspaces, redirecting to /onboarding');
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  console.log('✅ Authenticated with workspaces, showing protected content');
+  return <Outlet />;
+}
+
+/**
+ * For routes that should NOT be accessible when logged in (e.g. Login, Signup)
+ */
+export function PublicRoute() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   if (authLoading) {
     return <LoadingScreen />;
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/signin" replace />;
-  }
-
-  return <Outlet />;
-}
-
-/**
- * For routes that should NOT be accessible when logged in (e.g. Login, Signup, Landing)
- */
-export function PublicRoute() {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-  // Only fetch workspaces if authenticated to prevent 401 on landing
-  const { workspaces, isLoading: workspacesLoading } = useWorkspaces({ enabled: isAuthenticated });
-
-  if (authLoading || (isAuthenticated && workspacesLoading)) {
-    return <LoadingScreen />;
-  }
-
+  // Redirect authenticated users away from auth pages
   if (isAuthenticated) {
-    if (workspaces.length === 0) {
-      return <Navigate to="/onboarding" replace />;
-    }
     return <Navigate to="/dashboard" replace />;
   }
 

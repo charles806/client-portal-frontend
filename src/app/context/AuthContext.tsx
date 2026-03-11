@@ -7,6 +7,8 @@ interface User {
     username?: string;
     firstName?: string;
     lastName?: string;
+    avatarUrl?: string;
+    emailVerified: boolean;
 }
 
 interface AuthContextType {
@@ -17,6 +19,7 @@ interface AuthContextType {
     signup: (data: any) => Promise<void>;
     logout: () => Promise<void>;
     setUsername: (username: string, password: string) => Promise<void>;
+    refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,11 +32,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         const initAuth = async () => {
             try {
-                // Try to get current user - this will work if cookie is valid
                 const response = await apiClient.get('/auth/me');
                 setUser(response.data.user);
             } catch (error) {
-                // Not authenticated or session expired
                 setUser(null);
             } finally {
                 setIsLoading(false);
@@ -48,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const signup = async (data: any) => {
-        const response = await publicClient.post('/auth/register', data);
+        const response = await publicClient.post('/auth/signup', data);
         setUser(response.data.user);
     };
 
@@ -68,6 +69,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(user);
     };
 
+    const refreshUser = async () => {
+        try {
+            const response = await apiClient.get('/auth/me');
+            setUser(response.data.user);
+        } catch (error) {
+            console.error('Failed to refresh user:', error);
+        }
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -78,6 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 signup,
                 logout,
                 setUsername,
+                refreshUser, // ← ADDED THIS
             }}
         >
             {children}

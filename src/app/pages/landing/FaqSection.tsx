@@ -9,11 +9,11 @@ interface FaqItem {
 const faqs: FaqItem[] = [
   {
     question: 'Will my clients actually use this?',
-    answer: "Yes — and that's the whole point. ClientPortal is designed to be so simple that clients use it without training. No logins to remember (magic link access), no complex UI. They see their project, their files, and where to click to approve. Our data shows 89% of invited clients log in within 24 hours.",
+    answer: "Yes — and that's the whole point. Portalwave is designed to be so simple that clients use it without training. No logins to remember (magic link access), no complex UI. They see their project, their files, and where to click to approve. Our data shows 89% of invited clients log in within 24 hours.",
   },
   {
     question: 'How does white-labeling work?',
-    answer: "On Pro and Premium plans, you can fully white-label the portal with your agency's logo, brand colors, and even a custom domain (e.g., portal.youragency.com). Your clients never see the ClientPortal name. It looks and feels like software you built yourself.",
+    answer: "On Pro and Premium plans, you can fully white-label the portal with your agency's logo, brand colors, and even a custom domain (e.g., portal.youragency.com). Your clients never see the Portalwave name. It looks and feels like software you built yourself.",
   },
   {
     question: 'Is my client data secure?',
@@ -73,7 +73,7 @@ const FaqSection: React.FC = () => {
               <span className="gradient-text">We've got answers.</span>
             </h2>
             <p className="text-xl text-gray-400 font-light leading-relaxed mb-8 max-w-md">
-              Everything you need to know about switching your agency to ClientPortal. Still not sure? Talk to a real person.
+              Everything you need to know about switching your agency to Portalwave. Still not sure? Talk to a real person.
             </p>
 
             <a

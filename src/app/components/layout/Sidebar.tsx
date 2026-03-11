@@ -30,7 +30,7 @@ const navItems: NavItem[] = [
 ];
 
 const bottomItems: NavItem[] = [
-  { icon: Building2, label: "Workspace", to: "/workspace" },
+  { icon: Building2, label: "Workspace", to: "/workspace-settings" },
   { icon: Settings, label: "Settings", to: "/settings" },
 ];
 

@@ -1,4 +1,4 @@
-import { JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useState } from "react";
+import { JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useState, useEffect } from "react";
 import {
   Building2,
   Users,
@@ -19,6 +19,7 @@ import { sanitizeValue } from "../components/ui/sanitization";
 
 import { useWorkspaceStore } from "../store/workspaceStore";
 import { useWorkspace, useWorkspaceMembers, WorkspaceMember } from "../hooks/useWorkspaces";
+import { useWorkspaces } from "../hooks/useWorkspaces";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
 
@@ -55,6 +56,7 @@ export default function WorkspaceSettings() {
   const { user } = useAuth();
   const { currentWorkspaceId } = useWorkspaceStore();
   const { data: workspace, isLoading: workspaceLoading } = useWorkspace(currentWorkspaceId);
+  const { updateWorkspace } = useWorkspaces();
   const {
     members,
     isLoading: membersLoading,
@@ -73,9 +75,11 @@ export default function WorkspaceSettings() {
   const [inviting, setInviting] = useState(false);
 
   // Update form when workspace loads
-  if (workspace && wsForm.name !== workspace.name) {
-    setWsForm({ name: workspace.name });
-  }
+  useEffect(() => {
+    if (workspace?.name) {
+      setWsForm({ name: workspace.name });
+    }
+  }, [workspace?.name]);
 
   if (workspaceLoading) {
     return (
@@ -97,11 +101,19 @@ export default function WorkspaceSettings() {
   }
 
   const handleSaveGeneral = async () => {
+    if (!currentWorkspaceId) return;
+
     setSaving(true);
-    // TODO: Add API call to update workspace
-    await new Promise((r) => setTimeout(r, 900));
-    setSaving(false);
-    toast.success("Workspace settings saved");
+    try {
+      await updateWorkspace({
+        id: currentWorkspaceId,
+        data: { name: wsForm.name },
+      });
+    } catch (error) {
+      console.error('Failed to update workspace:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleInvite = async () => {

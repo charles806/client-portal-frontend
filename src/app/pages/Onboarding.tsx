@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Zap, ArrowRight, Check } from "lucide-react";
 import { Spinner } from "../components/ui/ios-spinner";
@@ -17,6 +17,16 @@ export default function Onboarding() {
   const [step, setStep] = useState<"welcome" | "create" | "success">("welcome");
   const [workspaceName, setWorkspaceName] = useState("");
   const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+    console.log('=== ONBOARDING DEBUG ===');
+    console.log('User:', user);
+    console.log('Step:', step);
+    console.log('Cookies:', document.cookie);
+    console.log('========================');
+  }, [user, step]);
+
+
 
   const handleCreateWorkspace = async (e: React.FormEvent) => {
     e.preventDefault();

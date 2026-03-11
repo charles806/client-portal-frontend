@@ -153,7 +153,7 @@ const HeroSection: React.FC = () => {
                       </div>
                       <div className="flex-1 mx-4">
                         <div className="bg-gray-100 rounded-full h-5 flex items-center px-3 max-w-xs mx-auto">
-                          <span className="text-xs text-gray-400">app.clientportal.io/acme-studio</span>
+                          <span className="text-xs text-gray-400">app.portalwave.io/acme-studio</span>
                         </div>
                       </div>
                       <div className="w-16" />

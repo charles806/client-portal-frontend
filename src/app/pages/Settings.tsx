@@ -12,7 +12,9 @@ import { Spinner } from "../components/ui/ios-spinner";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { sanitizeValue } from "../components/ui/sanitization";
-
+import { Mail } from 'lucide-react';
+import { AvatarUpload } from '../components/AvatarUpload';
+import apiClient from '../services/api';
 import { Header } from "../components/layout/Header";
 import { toast } from "sonner";
 import { useAuth } from "../context/AuthContext";
@@ -27,7 +29,9 @@ const tabs: { id: Tab; label: string; icon: typeof User }[] = [
 ];
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
+  const [loading, setLoading] = useState(false);
+  // const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState({
@@ -63,6 +67,16 @@ export default function Settings() {
     await new Promise((r) => setTimeout(r, 1000));
     setSaving(false);
     toast.success("Settings saved successfully");
+  };
+
+  const handleAvatarUpload = async (url: string) => {
+    try {
+      await apiClient.patch('/auth/profile', { avatarUrl: url });
+      await refreshUser();
+      toast.success('Avatar updated!');
+    } catch (error) {
+      console.error('Failed to update avatar:', error);
+    }
   };
 
   const Toggle = ({
@@ -123,36 +137,20 @@ export default function Settings() {
                     </p>
 
                     {/* Avatar */}
-                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-100">
-                      <div
-                        className="size-16 rounded-2xl bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white"
-                        style={{ fontSize: "1.2rem", fontWeight: 700 }}
-                      >
-                        {profile.name
-                          .split(" ")
-                          .map((n: string) => n[0])
-                          .join("")
-                          .slice(0, 2)}
-                      </div>
-                      <div>
-                        <p
-                          className="text-slate-900 text-sm"
-                          style={{ fontWeight: 600 }}
-                        >
-                          {profile.name}
-                        </p>
-                        <p className="text-slate-500 text-xs mb-2">
-                          {profile.role}
-                        </p>
-                        <button
-                          onClick={() => toast.info("Photo upload coming soon")}
-                          className="text-xs text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer border border-indigo-200 px-3 py-1 rounded-lg hover:bg-indigo-50"
-                          style={{ fontWeight: 500 }}
-                        >
-                          Change photo
-                        </button>
-                      </div>
+                    <div className="mb-6">
+                      <label className="block text-sm font-semibold text-slate-700 mb-3">
+                        Profile Picture
+                      </label>
+                      <AvatarUpload
+                        currentUrl={user?.avatarUrl}
+                        onUploadComplete={handleAvatarUpload}
+                        size="lg"
+                      />
+                      <p className="text-slate-500 text-xs mt-2">
+                        Click to upload a new avatar (max 5MB)
+                      </p>
                     </div>
+
 
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
