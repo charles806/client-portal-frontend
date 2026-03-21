@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Zap, ArrowRight, Check } from "lucide-react";
+import { Zap, ArrowRight, Check, CreditCard } from "lucide-react";
 import { Spinner } from "../components/ui/ios-spinner";
 import { Input } from "../components/ui/input";
 
 import { useAuth } from "../context/AuthContext";
 import { useWorkspaces } from "../hooks/useWorkspaces";
 import { useWorkspaceStore } from "../store/workspaceStore";
+import { useSubscription } from "../hooks/useSubscription";
 import { toast } from "sonner";
 
 export default function Onboarding() {
@@ -14,8 +15,10 @@ export default function Onboarding() {
   const { user } = useAuth();
   const { createWorkspace } = useWorkspaces();
   const { setCurrentWorkspace } = useWorkspaceStore();
-  const [step, setStep] = useState<"welcome" | "create" | "success">("welcome");
+  const { initializeTrial } = useSubscription(undefined);
+  const [step, setStep] = useState<"welcome" | "create" | "add-card" | "success">("welcome");
   const [workspaceName, setWorkspaceName] = useState("");
+  const [workspaceId, setWorkspaceId] = useState("");
   const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -39,12 +42,17 @@ export default function Onboarding() {
     try {
       const workspace = await createWorkspace({ name: workspaceName.trim() });
       setCurrentWorkspace(workspace.id);
-      setStep("success");
-
-      // Auto-redirect after 2 seconds
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 2000);
+      setWorkspaceId(workspace.id);
+      
+      // Initialize trial subscription
+      try {
+        await initializeTrial({ workspaceId: workspace.id, planTier: 'STARTER' });
+      } catch (err) {
+        console.error('Failed to initialize trial:', err);
+      }
+      
+      // Redirect to billing to add card
+      setStep("add-card");
     } catch (error) {
       console.error("Failed to create workspace:", error);
       toast.error("Failed to create workspace");
@@ -139,6 +147,34 @@ export default function Onboarding() {
                 {loading ? "Creating workspace" : "Create Workspace"}
               </button>
             </form>
+          </div>
+        )}
+
+        {/* Step: Add Card (Required for Trial) */}
+        {step === "add-card" && (
+          <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-white/60 shadow-xl p-8 text-center">
+            <div className="size-16 rounded-full bg-indigo-100 flex items-center justify-center mx-auto mb-6">
+              <CreditCard className="size-8 text-indigo-600" />
+            </div>
+            <h2
+              className="text-slate-900 mb-2"
+              style={{ fontWeight: 700, fontSize: "1.25rem" }}
+            >
+              Add Payment Method
+            </h2>
+            <p className="text-slate-500 text-sm mb-6">
+              Start your 7-day free trial. You'll not be charged until the trial ends. Add your card to continue.
+            </p>
+            <button
+              onClick={() => navigate(`/workspace-settings?workspace=${workspaceId}&tab=billing`)}
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 transition-all cursor-pointer shadow-lg shadow-indigo-200"
+              style={{ fontWeight: 600 }}
+            >
+              Add Card to Continue
+            </button>
+            <p className="text-xs text-slate-400 mt-4">
+              You must add a payment method to access your dashboard
+            </p>
           </div>
         )}
 

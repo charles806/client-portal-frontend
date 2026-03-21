@@ -32,10 +32,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         const initAuth = async () => {
             try {
+                // First try to refresh token if needed
+                await publicClient.post('/auth/refresh');
+            } catch (e) {
+                // Refresh failed - user is not logged in, that's ok
+            }
+            
+            try {
                 const response = await apiClient.get('/auth/me');
                 setUser(response.data.user);
-            } catch (error) {
-                setUser(null);
+            } catch (error: any) {
+                // If refresh worked but /auth/me still fails, user is not logged in
+                // Don't treat 401 as an error - it's expected for logged out users
+                console.log('Auth check - user not logged in');
             } finally {
                 setIsLoading(false);
             }

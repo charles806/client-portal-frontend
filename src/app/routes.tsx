@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router";
 import { Root, ProtectedRoute, PublicRoute } from "./components/layout/Root";
 import { OnboardingGuard } from "./components/OnboardingGuard";
+import { SubscriptionGuard } from "./components/SubscriptionGuard";
 import { AppLayout } from "./components/layout/AppLayout";
 import { AuthOnlyRoute } from "./components/layout/Root";
 
@@ -22,6 +23,7 @@ import Settings from "./pages/Settings";
 import WorkspaceSettings from "./pages/WorkspaceSettings";
 import InvoiceDetail from "./pages/InvoiceDetail";
 import CreateInvoice from "./pages/CreateInvoice";
+import Activity from './pages/Activity';
 
 export const router = createBrowserRouter([
   {
@@ -48,12 +50,12 @@ export const router = createBrowserRouter([
       // Email verification (accessible anytime)
       { path: "/verify-email", element: <VerifyEmail /> },
 
-      // Auth-only routes (NO workspace check) - NEW SECTION!
+
       {
-        element: <AuthOnlyRoute />,  // ← CHANGE THIS!
+        element: <AuthOnlyRoute />,
         children: [
           { path: "/setup-account", element: <SetupAccount /> },
-          { path: "/onboarding", element: <Onboarding /> },  // ← NO workspace check!
+          { path: "/onboarding", element: <Onboarding /> },
         ],
       },
 
@@ -65,18 +67,23 @@ export const router = createBrowserRouter([
             element: <OnboardingGuard />,
             children: [
               {
-                element: <AppLayout />,
+                element: <SubscriptionGuard />,
                 children: [
-                  { path: "/dashboard", element: <Dashboard /> },
-                  { path: "/projects", element: <Projects /> },
-                  { path: "/projects/:id", element: <ProjectDetail /> },
-                  { path: "/timeline", element: <Timeline /> },
-                  { path: "/invoices", element: <Invoices /> },
-                  { path: "/invoices/new", element: <CreateInvoice /> },
-                  { path: "/invoices/:id", element: <InvoiceDetail /> },
-
-                  { path: "/settings", element: <Settings /> },
-                  { path: "/workspace-settings", element: <WorkspaceSettings /> },
+                  {
+                    element: <AppLayout />,
+                    children: [
+                      { path: "/dashboard", element: <Dashboard /> },
+                      { path: "/projects", element: <Projects /> },
+                      { path: "/projects/:id", element: <ProjectDetail /> },
+                      { path: "/timeline", element: <Timeline /> },
+                      { path: "/invoices", element: <Invoices /> },
+                      { path: "/invoices/new", element: <CreateInvoice /> },
+                      { path: "/invoices/:id", element: <InvoiceDetail /> },
+                      { path: "/activity", element: <Activity /> },
+                      { path: "/settings", element: <Settings /> },
+                      { path: "/workspace-settings", element: <WorkspaceSettings /> },
+                    ],
+                  },
                 ],
               },
             ],

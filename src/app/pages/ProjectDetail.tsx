@@ -6,18 +6,19 @@ import {
 import { Header } from '../components/layout/Header';
 import { StatusBadge } from '../components/dashboard/StatusBadge';
 import { EditProjectModal } from '../components/modals/EditProjectModal';
-import { useProject, useMilestones, useProjects } from '../hooks/useProjects';
+import { useProject, useMilestones, useProjects, Milestone } from '../hooks/useProjects';
 import { useWorkspaceStore } from '../store/workspaceStore';
 import { toast } from 'sonner';
 import { RadialBarChart, RadialBar, ResponsiveContainer, Cell } from 'recharts';
 import { Input } from '../components/ui/input';
+import { AttachmentsList } from '../components/AttachmentsList';
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { currentWorkspaceId } = useWorkspaceStore();
   const { data: project, isLoading } = useProject(id);
-  const { deleteProject } = useProjects(currentWorkspaceId);
+  const { deleteProject } = useProjects(currentWorkspaceId ?? '');
   const { milestones, createMilestone, updateMilestone } = useMilestones(id);
 
   const [editOpen, setEditOpen] = useState(false);
@@ -196,6 +197,7 @@ export default function ProjectDetail() {
 
         {/* Milestones */}
         <div className="rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 shadow-lg p-5">
+
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-slate-900 text-sm" style={{ fontWeight: 700 }}>
@@ -259,7 +261,7 @@ export default function ProjectDetail() {
                 <p className="text-slate-400 text-sm">No milestones yet</p>
               </div>
             ) : (
-              milestones.map((milestone: { id: Key | null | undefined; status: string; title: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; description: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; dueDate: string | number | Date; }, i: number) => (
+              milestones.map((milestone: Milestone, i: number) => (
                 <div
                   key={milestone.id}
                   className={`flex items-start gap-3 p-3 rounded-xl transition-colors ${milestone.status === 'completed' ? 'bg-emerald-50/50' : 'hover:bg-slate-50'}`}
@@ -298,6 +300,11 @@ export default function ProjectDetail() {
               ))
             )}
           </div>
+
+
+        </div>
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <AttachmentsList projectId={id!} />
         </div>
       </div>
 

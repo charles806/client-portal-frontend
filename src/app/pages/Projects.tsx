@@ -5,7 +5,7 @@ import { ProjectCard } from '../components/dashboard/ProjectCard';
 import { Input } from '../components/ui/input';
 import { StatusBadge } from '../components/dashboard/StatusBadge';
 import { AddProjectModal } from '../components/modals/AddProjectModal';
-import { useProjects } from '../hooks/useProjects';
+import { useProjects, type Project } from '../hooks/useProjects';
 import { useNavigate } from 'react-router';
 import type { ProjectStatus } from '../store/projectStore';
 import { useWorkspaceStore } from '../store/workspaceStore';
@@ -27,11 +27,11 @@ export default function Projects() {
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'all'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  const filtered = projects.filter((p) => {
+  const filtered = projects.filter((p: Project) => {
     const matchesSearch =
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.client.toLowerCase().includes(search.toLowerCase()) ||
-      p.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()));
+      p.tags.some((t: string) => t.toLowerCase().includes(search.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -118,7 +118,7 @@ export default function Projects() {
           </div>
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((project) => (
+            {filtered.map((project: Project) => (
               <ProjectCard key={project.id} project={project as any} />
             ))}
           </div>
@@ -136,7 +136,7 @@ export default function Projects() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((p) => (
+                {filtered.map((p: Project) => (
                   <tr
                     key={p.id}
                     onClick={() => navigate(`/projects/${p.id}`)}
@@ -145,7 +145,7 @@ export default function Projects() {
                     <td className="px-5 py-3.5">
                       <p className="text-slate-900 text-sm" style={{ fontWeight: 600 }}>{p.name}</p>
                       <div className="flex gap-1 mt-1">
-                        {p.tags.slice(0, 2).map((t) => (
+                        {p.tags.slice(0, 2).map((t: string) => (
                           <span key={t} className="text-xs bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">{t}</span>
                         ))}
                       </div>

@@ -7,6 +7,7 @@ export interface Workspace {
   name: string;
   slug: string;
   ownerId: string;
+  logoUrl?: string;
   createdAt: string;
   updatedAt: string;
   _count?: {
@@ -43,7 +44,7 @@ export function useWorkspaces(options: { enabled?: boolean } = { enabled: true }
   });
 
   const createWorkspace = useMutation({
-    mutationFn: async (data: { name: string }) => {
+    mutationFn: async (data: { name: string; logoUrl?: string }) => {
       const response = await apiClient.post('/workspaces', data);
       return response.data;
     },
@@ -57,7 +58,7 @@ export function useWorkspaces(options: { enabled?: boolean } = { enabled: true }
   });
 
   const updateWorkspace = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: { name: string } }) => {
+    mutationFn: async ({ id, data }: { id: string; data: { name?: string; logoUrl?: string } }) => {
       const response = await apiClient.patch(`/workspaces/${id}`, data);
       return response.data;
     },

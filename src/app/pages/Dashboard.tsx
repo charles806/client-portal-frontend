@@ -11,9 +11,12 @@ import { Header } from "../components/layout/Header";
 import { StatsCard } from "../components/dashboard/StatsCard";
 import { ProjectCard } from "../components/dashboard/ProjectCard";
 import { AddProjectModal } from "../components/modals/AddProjectModal";
-import { useProjects } from "../hooks/useProjects";
+import { useProjects, useProjectStats } from "../hooks/useProjects";
 import { useWorkspaceStore } from '../store/workspaceStore';
 import { useAuth } from '../context/AuthContext';
+import { useActivities } from '../hooks/useActivities';
+import { ActivityFeed } from '../components/ActivityFeed';
+import { Activity as ActivityIcon } from 'lucide-react';
 import {
   AreaChart,
   Area,
@@ -24,16 +27,20 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-import { activityData, recentActivity } from "../services/dashboardData";
+import { recentActivity } from "../services/dashboardData";
+import { Project } from "../store/projectStore";
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { currentWorkspaceId } = useWorkspaceStore();
-  const { projects, stats } = useProjects(currentWorkspaceId);
   const [addOpen, setAddOpen] = useState(false);
+  const { currentWorkspaceId } = useWorkspaceStore();
+  const { projects, stats, isLoading: projectsLoading } = useProjects(currentWorkspaceId ?? '');
+  const { activities, isLoading: activitiesLoading } = useActivities(currentWorkspaceId, { limit: 10 });
+  const { data: activityData = [] } = useProjectStats(currentWorkspaceId ?? '');
+
 
   const activeProjects = projects.filter(
-    (p) => p.status === "active" || p.status === "planning",
+    ((p: any) => p.status === "active" || p.status === "planning"),
   );
   const recentProjects = projects.slice(0, 6);
 
@@ -278,13 +285,29 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recentProjects.map((project) => (
+              {recentProjects.map((project: Project) => (
                 <ProjectCard key={project.id} project={project} />
               ))}
             </div>
           )}
         </div>
+
+        {/* Recent Activity - ADD THIS SECTION */}
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <ActivityIcon className="size-5 text-slate-600" />
+              <h2 className="text-lg font-semibold text-slate-900">Recent Activity</h2>
+            </div>
+          </div>
+          <ActivityFeed
+            activities={activities.slice(0, 10)}
+            showUser={true}
+          />
+        </div>
+
       </div>
+
 
       <AddProjectModal open={addOpen} onClose={() => setAddOpen(false)} />
     </div>

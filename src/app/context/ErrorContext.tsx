@@ -17,7 +17,11 @@ const ErrorContext = createContext<ErrorContextType | undefined>(undefined);
 // Global reference for API interceptor
 let globalShowError: ((message: string, title?: string, type?: 'error' | 'warning' | 'info') => void) | null = null;
 
-export const showErrorGlobal = (message: string, title?: string, type?: 'error' | 'warning' | 'info' = 'error') => {
+export const showErrorGlobal = (
+  message: string,
+  title?: string,
+  type: 'error' | 'warning' | 'info' = 'error'
+) => {
     if (globalShowError) {
         globalShowError(message, title, type);
     }

@@ -34,9 +34,10 @@ const setupInterceptors = (instance: any) => {
       if ([400, 403, 404, 409, 422].includes(status)) {
         showErrorGlobal(message, 'Action Failed');
       } else if (status === 401) {
-        // Only show error for 401 if it's NOT a silent check or NOT the /auth/me call on mount
-        // For now, let's let AuthContext handle 401 for /auth/me
-        if (!error.config.url.includes('/auth/me')) {
+        // Only show error for 401 if it's NOT a silent check
+        // Exclude /auth/me and /auth/refresh as they are expected to return 401 when not logged in
+        const url = error.config.url || '';
+        if (!url.includes('/auth/me') && !url.includes('/auth/refresh')) {
           showErrorGlobal(message, 'Session Expired');
         }
       } else if (status >= 500) {

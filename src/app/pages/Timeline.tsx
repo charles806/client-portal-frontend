@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { CheckCircle2, Circle, Calendar, ExternalLink, Filter } from 'lucide-react';
 import { Header } from '../components/layout/Header';
 import { StatusBadge } from '../components/dashboard/StatusBadge';
-import { useProjects } from '../hooks/useProjects';
+import { useProjects, type Milestone as ProjectMilestone } from '../hooks/useProjects';
 import { sanitizeValue } from '../components/ui/sanitization';
 import { useWorkspaceStore } from '../store/workspaceStore';
 import type { Project } from '../hooks/useProjects';
@@ -20,18 +20,19 @@ export default function Timeline() {
 
   // Collect all milestones with project info
   const allMilestones = projects.flatMap((project: any) =>
-    (project.milestones || []).map((m: any) => ({ ...m, project }))
+    (project.milestones || []).map((m: ProjectMilestone) => ({ ...m, project }))
   );
 
   // Apply filters
   const now = new Date();
-  const filtered = allMilestones.filter((m) => {
+  const filtered = allMilestones.filter((m: any) => {
     const projectMatch = selectedProject === 'all' || m.project.id === selectedProject;
-    const isOverdue = !m.completed && new Date(m.dueDate) < now;
+    const isCompleted = m.status === 'completed';
+    const isOverdue = !isCompleted && new Date(m.dueDate) < now;
     const statusMatch =
       filter === 'all' ||
-      (filter === 'completed' && m.completed) ||
-      (filter === 'pending' && !m.completed && !isOverdue) ||
+      (filter === 'completed' && isCompleted) ||
+      (filter === 'pending' && !isCompleted && !isOverdue) ||
       (filter === 'overdue' && isOverdue);
     return projectMatch && statusMatch;
   });
@@ -43,7 +44,7 @@ export default function Timeline() {
 
   // Group by month
   const grouped: Record<string, typeof sorted> = {};
-  sorted.forEach((m) => {
+  sorted.forEach((m: any) => {
     const month = new Date(m.dueDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     if (!grouped[month]) grouped[month] = [];
     grouped[month].push(m);
@@ -51,9 +52,9 @@ export default function Timeline() {
 
   const stats = {
     total: allMilestones.length,
-    completed: allMilestones.filter((m) => m.completed).length,
-    pending: allMilestones.filter((m) => !m.completed && new Date(m.dueDate) >= now).length,
-    overdue: allMilestones.filter((m) => !m.completed && new Date(m.dueDate) < now).length,
+    completed: allMilestones.filter((m: any) => m.status === 'completed').length,
+    pending: allMilestones.filter((m: any) => m.status !== 'completed' && new Date(m.dueDate) >= now).length,
+    overdue: allMilestones.filter((m: any) => m.status !== 'completed' && new Date(m.dueDate) < now).length,
   };
 
   return (
@@ -103,7 +104,7 @@ export default function Timeline() {
               style={{ fontWeight: 500 }}
             >
               <option value="all">All projects</option>
-              {projects.map((p) => (
+              {projects.map((p: Project) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
@@ -123,14 +124,15 @@ export default function Timeline() {
                 <div className="flex items-center gap-3 mb-4">
                   <h3 className="text-slate-900 text-sm" style={{ fontWeight: 700 }}>{month}</h3>
                   <div className="flex-1 h-px bg-slate-200" />
-                  <span className="text-xs text-slate-400" style={{ fontWeight: 500 }}>
-                    {milestones.filter((m) => m.completed).length}/{milestones.length} done
+              <span className="text-xs text-slate-400" style={{ fontWeight: 500 }}>
+                    {milestones.filter((m: any) => m.status === 'completed').length}/{milestones.length} done
                   </span>
                 </div>
 
                 <div className="space-y-3 pl-4 border-l-2 border-slate-100">
-                  {milestones.map((milestone, i) => {
-                    const isOverdue = !milestone.completed && new Date(milestone.dueDate) < now;
+                  {milestones.map((milestone: any) => {
+                    const isCompleted = milestone.status === 'completed';
+                    const isOverdue = !isCompleted && new Date(milestone.dueDate) < now;
                     const daysUntil = Math.ceil((new Date(milestone.dueDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
                     return (
@@ -147,7 +149,7 @@ export default function Timeline() {
                               onClick={() => completeMilestone(milestone.project.id, milestone.id)}
                               className="cursor-pointer transition-transform hover:scale-110 mt-0.5 shrink-0"
                             >
-                              {milestone.completed ? (
+                              {isCompleted ? (
                                 <CheckCircle2 className="size-5 text-emerald-500" />
                               ) : (
                                 <Circle className={`size-5 ${isOverdue ? 'text-red-300' : 'text-slate-300'} hover:text-indigo-400 transition-colors`} />
@@ -155,7 +157,7 @@ export default function Timeline() {
                             </button>
 
                             <div className="flex-1 min-w-0">
-                              <p className={`text-sm ${milestone.completed ? 'line-through text-slate-400' : 'text-slate-800'}`} style={{ fontWeight: 600 }}>
+                              <p className={`text-sm ${isCompleted ? 'line-through text-slate-400' : 'text-slate-800'}`} style={{ fontWeight: 600 }}>
                                 {milestone.title}
                               </p>
                               {milestone.description && (
@@ -167,12 +169,12 @@ export default function Timeline() {
                                   <Calendar className="size-3" />
                                   {new Date(milestone.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                 </span>
-                                {!milestone.completed && (
+                                {!isCompleted && (
                                   <span className={`text-xs ${isOverdue ? 'text-red-500' : daysUntil <= 7 ? 'text-amber-500' : 'text-slate-400'}`} style={{ fontWeight: 500 }}>
                                     {isOverdue ? `${Math.abs(daysUntil)}d overdue` : daysUntil === 0 ? 'Due today' : `${daysUntil}d left`}
                                   </span>
                                 )}
-                                {milestone.completed && milestone.completedAt && (
+                                {isCompleted && milestone.updatedAt && (
                                   <span className="text-xs text-emerald-600" style={{ fontWeight: 500 }}>
                                     ✓ {new Date(milestone.completedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                   </span>

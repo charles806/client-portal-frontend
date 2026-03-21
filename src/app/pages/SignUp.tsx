@@ -129,8 +129,8 @@ export default function SignUp() {
     }
   };
 
-  function handleOAuthSignup(arg0: string): void {
-    throw new Error("Function not implemented.");
+  function handleOAuthSignup(provider: string) {
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/${provider}`;
   }
 
   return (

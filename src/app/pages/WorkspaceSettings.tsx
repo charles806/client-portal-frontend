@@ -1,4 +1,5 @@
 import { JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useState, useEffect } from "react";
+import { useSearchParams } from "react-router";
 import {
   Building2,
   Users,
@@ -10,18 +11,25 @@ import {
   Globe,
   Crown,
   User as UserIcon,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  ArrowUpRight,
 } from "lucide-react";
 
 import { Header } from "../components/layout/Header";
 import { Spinner } from "../components/ui/ios-spinner";
 import { Input } from "../components/ui/input";
 import { sanitizeValue } from "../components/ui/sanitization";
+import { LogoUpload } from '../components/LogoUpload';
 
 import { useWorkspaceStore } from "../store/workspaceStore";
 import { useWorkspace, useWorkspaceMembers, WorkspaceMember } from "../hooks/useWorkspaces";
 import { useWorkspaces } from "../hooks/useWorkspaces";
 import { useAuth } from "../context/AuthContext";
+import { useSubscription, usePaymentHistory } from "../hooks/useSubscription";
 import { toast } from "sonner";
+import { PaystackModal } from "../components/PaystackModal";
 
 type Tab = "general" | "members" | "billing";
 
@@ -52,10 +60,31 @@ const roleConfig: Record<
   },
 };
 
+const PLAN_DETAILS = {
+  STARTER: {
+    name: 'Starter',
+    price: 5000,
+    features: ['1 workspace', '5 projects', '2 team members', '10 invoices/month', '5GB storage'],
+  },
+  PROFESSIONAL: {
+    name: 'Professional',
+    price: 15000,
+    features: ['3 workspaces', 'Unlimited projects', '10 team members', 'Unlimited invoices', '25GB storage'],
+  },
+  ENTERPRISE: {
+    name: 'Enterprise',
+    price: 35000,
+    features: ['Unlimited workspaces', 'Unlimited projects', 'Unlimited team members', 'Unlimited invoices', '100GB storage'],
+  },
+};
+
 export default function WorkspaceSettings() {
   const { user } = useAuth();
-  const { currentWorkspaceId } = useWorkspaceStore();
-  const { data: workspace, isLoading: workspaceLoading } = useWorkspace(currentWorkspaceId);
+  const { currentWorkspaceId, setCurrentWorkspace } = useWorkspaceStore();
+  const [searchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get('tab') as Tab | null;
+  
+  const { data: workspace, isLoading: workspaceLoading } = useWorkspace(currentWorkspaceId ?? '');
   const { updateWorkspace } = useWorkspaces();
   const {
     members,
@@ -63,9 +92,17 @@ export default function WorkspaceSettings() {
     inviteMember,
     updateMemberRole,
     removeMember,
-  } = useWorkspaceMembers(currentWorkspaceId);
+  } = useWorkspaceMembers(currentWorkspaceId ?? '');
 
-  const [activeTab, setActiveTab] = useState<Tab>("general");
+  const [activeTab, setActiveTab] = useState<Tab>(tabFromUrl || "general");
+  
+  // Set workspace from URL if provided
+  useEffect(() => {
+    const workspaceFromUrl = searchParams.get('workspace');
+    if (workspaceFromUrl && workspaceFromUrl !== currentWorkspaceId) {
+      setCurrentWorkspace(workspaceFromUrl);
+    }
+  }, [searchParams]);
   const [saving, setSaving] = useState(false);
   const [wsForm, setWsForm] = useState({
     name: workspace?.name || '',
@@ -73,6 +110,12 @@ export default function WorkspaceSettings() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<'admin' | 'member'>("member");
   const [inviting, setInviting] = useState(false);
+  
+  // Subscription state
+  const { subscription, isLoading: subLoading, initializeTrial, authorizeCard, upgradePlan, cancelSubscription } = useSubscription(currentWorkspaceId);
+  const { payments } = usePaymentHistory(currentWorkspaceId);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [upgradePlanTier, setUpgradePlanTier] = useState<string | null>(null);
 
   // Update form when workspace loads
   useEffect(() => {
@@ -214,7 +257,24 @@ export default function WorkspaceSettings() {
                     Configure your workspace details
                   </p>
 
-                  {/* Workspace icon */}
+
+                  {/* Workspace Logo */}
+                  <div className="mb-6 pb-6 border-b border-slate-100">
+                    <h3 className="text-sm font-semibold text-slate-700 mb-3">Workspace Logo</h3>
+                    <LogoUpload
+                      currentUrl={workspace.logoUrl}
+                      workspaceId={currentWorkspaceId!}
+                      onUploadComplete={async (url) => {
+                        try {
+                          await updateWorkspace({ id: currentWorkspaceId!, data: { logoUrl: url } });
+                        } catch (error) {
+                          console.error('Failed to update logo:', error);
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {/* Workspace Stats */}
                   <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-100">
                     <div
                       className="size-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white shadow-lg shadow-indigo-200"
@@ -411,26 +471,228 @@ export default function WorkspaceSettings() {
 
               {/* Billing tab */}
               {activeTab === "billing" && (
-                <div className="rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 shadow-lg p-6">
-                  <h2
-                    className="text-slate-900 mb-1"
-                    style={{ fontWeight: 700, fontSize: "1rem" }}
-                  >
-                    Billing
-                  </h2>
-                  <p className="text-slate-500 text-sm mb-6">
-                    Billing features coming soon
-                  </p>
-                  <div className="text-center py-12">
-                    <CreditCard className="size-12 text-slate-300 mx-auto mb-3" />
-                    <p className="text-slate-400">Billing management will be available soon</p>
-                  </div>
+                <div className="space-y-6">
+                  {subLoading ? (
+                    <div className="flex justify-center py-12">
+                      <Spinner size="md" />
+                    </div>
+                  ) : !subscription || subscription.status === 'NO_SUBSCRIPTION' || subscription.status === 'EXPIRED' ? (
+                    // No subscription - show trial prompt
+                    <div className="rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 shadow-lg p-6">
+                      <div className="text-center py-8">
+                        <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <Crown className="size-8 text-indigo-600" />
+                        </div>
+                        <h3 className="text-slate-900 font-semibold mb-2">Start Your 7-Day Free Trial</h3>
+                        <p className="text-slate-500 text-sm mb-6 max-w-sm mx-auto">
+                          Try all features free for 7 days. No credit card required to start, but you'll need to add a card to continue after the trial.
+                        </p>
+                        <button
+                          onClick={async () => {
+                            if (!currentWorkspaceId) return;
+                            try {
+                              await initializeTrial({ workspaceId: currentWorkspaceId, planTier: 'STARTER' });
+                              setShowPaymentModal(true);
+                            } catch (error) {
+                              console.error('Failed to start trial:', error);
+                            }
+                          }}
+                          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-colors"
+                        >
+                          Start Free Trial
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    // Has subscription - show details
+                    <>
+                      {/* Subscription Status Card */}
+                      <div className="rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 shadow-lg p-6">
+                        <div className="flex items-start justify-between mb-6">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="text-slate-900 font-semibold">{PLAN_DETAILS[subscription.planTier as keyof typeof PLAN_DETAILS]?.name || 'Starter'} Plan</h3>
+                              {subscription.status === 'TRIALING' && (
+                                <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">
+                                  Trial
+                                </span>
+                              )}
+                              {subscription.status === 'ACTIVE' && (
+                                <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium flex items-center gap-1">
+                                  <CheckCircle className="size-3" /> Active
+                                </span>
+                              )}
+                              {subscription.status === 'PAST_DUE' && (
+                                <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full font-medium flex items-center gap-1">
+                                  <AlertTriangle className="size-3" /> Past Due
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-slate-500 text-sm">
+                              {subscription.status === 'TRIALING' && subscription.daysRemaining !== null && (
+                                <>Your trial ends in {subscription.daysRemaining} days </>
+                              )}
+                              {subscription.cancelAtPeriodEnd ? 'Cancels at period end' : 'Renews automatically'}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-2xl font-bold text-slate-900">
+                              ₦{PLAN_DETAILS[subscription.planTier as keyof typeof PLAN_DETAILS]?.price.toLocaleString() || '5,000'}
+                              <span className="text-sm font-normal text-slate-400">/mo</span>
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Usage Stats */}
+                        {subscription.usage && (
+                          <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-100">
+                            <div>
+                              <p className="text-xs text-slate-400 mb-1">Projects</p>
+                              <p className="font-semibold text-slate-900">
+                                {subscription.usage.projects} / {subscription.usage.limits.projects === -1 ? '∞' : subscription.usage.limits.projects}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-400 mb-1">Team Members</p>
+                              <p className="font-semibold text-slate-900">
+                                {subscription.usage.members} / {subscription.usage.limits.members === -1 ? '∞' : subscription.usage.limits.members}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-400 mb-1">Invoices</p>
+                              <p className="font-semibold text-slate-900">
+                                {subscription.usage.invoices} / {subscription.usage.limits.invoices === -1 ? '∞' : subscription.usage.limits.invoices}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Actions */}
+                        <div className="flex gap-3 mt-6 pt-4 border-t border-slate-100">
+                          {subscription.status === 'TRIALING' && (
+                            <button
+                              onClick={() => setShowPaymentModal(true)}
+                              className="flex-1 py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-colors"
+                            >
+                              Add Payment Method
+                            </button>
+                          )}
+                          {subscription.status === 'ACTIVE' && !subscription.cancelAtPeriodEnd && (
+                            <button
+                              onClick={async () => {
+                                if (!currentWorkspaceId) return;
+                                if (confirm('Are you sure you want to cancel your subscription?')) {
+                                  await cancelSubscription(currentWorkspaceId);
+                                }
+                              }}
+                              className="py-2 px-4 border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium rounded-xl transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Upgrade Plans */}
+                      {subscription.planTier !== 'ENTERPRISE' && (
+                        <div className="rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 shadow-lg p-6">
+                          <h4 className="font-semibold text-slate-900 mb-4">Upgrade Plan</h4>
+                          <div className="grid grid-cols-2 gap-4">
+                            {subscription.planTier === 'STARTER' && (
+                              <div className="p-4 border border-indigo-200 bg-indigo-50 rounded-xl">
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="font-semibold text-slate-900">Professional</span>
+                                  <span className="text-sm font-bold text-indigo-600">₦15,000/mo</span>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    setUpgradePlanTier('PROFESSIONAL');
+                                    setShowPaymentModal(true);
+                                  }}
+                                  className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors"
+                                >
+                                  Upgrade
+                                </button>
+                              </div>
+                            )}
+                            <div className="p-4 border border-slate-200 rounded-xl">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="font-semibold text-slate-900">Enterprise</span>
+                                <span className="text-sm font-bold text-slate-600">₦35,000/mo</span>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setUpgradePlanTier('ENTERPRISE');
+                                  setShowPaymentModal(true);
+                                }}
+                                className="w-full py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium rounded-lg transition-colors"
+                              >
+                                Upgrade
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Payment History */}
+                      {payments.length > 0 && (
+                        <div className="rounded-2xl bg-white/70 backdrop-blur-xl border border-white/60 shadow-lg p-6">
+                          <h4 className="font-semibold text-slate-900 mb-4">Payment History</h4>
+                          <div className="space-y-3">
+                            {payments.map((payment: any) => (
+                              <div key={payment.id} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                                <div className="flex items-center gap-3">
+                                  {payment.status === 'success' ? (
+                                    <CheckCircle className="size-4 text-emerald-500" />
+                                  ) : payment.status === 'failed' ? (
+                                    <XCircle className="size-4 text-red-500" />
+                                  ) : (
+                                    <AlertTriangle className="size-4 text-amber-500" />
+                                  )}
+                                  <div>
+                                    <p className="text-sm font-medium text-slate-900">{payment.description || 'Payment'}</p>
+                                    <p className="text-xs text-slate-400">{new Date(payment.createdAt).toLocaleDateString()}</p>
+                                  </div>
+                                </div>
+                                <p className="font-semibold text-slate-900">₦{(payment.amount / 100).toLocaleString()}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Paystack Modal */}
+      <PaystackModal
+        isOpen={showPaymentModal}
+        onClose={() => {
+          setShowPaymentModal(false);
+          setUpgradePlanTier(null);
+        }}
+        email={user?.email || ''}
+        amount={upgradePlanTier ? PLAN_DETAILS[upgradePlanTier as keyof typeof PLAN_DETAILS]?.price : 0}
+        onSuccess={async (reference) => {
+          if (!currentWorkspaceId) return;
+          try {
+            await authorizeCard({ workspaceId: currentWorkspaceId, authorizationCode: reference });
+            if (upgradePlanTier) {
+              await upgradePlan({ workspaceId: currentWorkspaceId, newPlanTier: upgradePlanTier });
+            }
+            setShowPaymentModal(false);
+            setUpgradePlanTier(null);
+          } catch (error) {
+            console.error('Payment error:', error);
+          }
+        }}
+        title={upgradePlanTier ? `Upgrade to ${PLAN_DETAILS[upgradePlanTier as keyof typeof PLAN_DETAILS]?.name}` : 'Add Payment Method'}
+      />
     </div>
   );
 }

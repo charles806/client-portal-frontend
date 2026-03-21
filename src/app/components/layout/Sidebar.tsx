@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useThemeStore } from "../../store/themeStore";
 import { useWorkspaceStore } from "../../store/workspaceStore";
+import { useSubscription } from "../../hooks/useSubscription";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
 
@@ -36,9 +37,20 @@ const bottomItems: NavItem[] = [
 
 export function Sidebar() {
   const { sidebarCollapsed, toggleSidebar } = useThemeStore();
-  const { workspace } = useWorkspaceStore();
+  const { workspace, currentWorkspaceId } = useWorkspaceStore();
+  const { subscription } = useSubscription(currentWorkspaceId);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+
+  const getPlanName = () => {
+    if (!subscription) return 'Free';
+    switch (subscription.planTier) {
+      case 'STARTER': return 'Starter';
+      case 'PROFESSIONAL': return 'Professional';
+      case 'ENTERPRISE': return 'Enterprise';
+      default: return 'Free';
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -73,13 +85,13 @@ export function Sidebar() {
               className="text-white truncate"
               style={{ fontWeight: 700, fontSize: "0.9rem" }}
             >
-              {workspace.name}
+              PortalWave
             </p>
             <p
               className="text-indigo-400 capitalize"
               style={{ fontSize: "0.7rem" }}
             >
-              {workspace.plan} plan
+              {getPlanName()} Plan
             </p>
           </div>
         )}

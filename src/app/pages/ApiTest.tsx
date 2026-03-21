@@ -11,7 +11,7 @@ interface TestResult {
   method: string;
   status: 'success' | 'error' | 'pending';
   duration: number;
-  response?: unknown;
+  response?: any;
 }
 
 const testCases = [

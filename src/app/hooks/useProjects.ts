@@ -173,3 +173,14 @@ export function useMilestones(projectId: string | undefined) {
     deleteMilestone: deleteMilestone.mutateAsync,
   };
 }
+
+export function useProjectStats(workspaceId: string | undefined) {
+  return useQuery({
+    queryKey: ['workspaces', workspaceId, 'projects', 'stats', 'monthly'],
+    queryFn: async () => {
+      const response = await apiClient.get(`/projects/stats/monthly?workspaceId=${workspaceId}`);
+      return response.data;
+    },
+    enabled: !!workspaceId,
+  });
+}
